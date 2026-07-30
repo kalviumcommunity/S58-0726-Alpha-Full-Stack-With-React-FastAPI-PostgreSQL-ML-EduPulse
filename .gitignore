@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.py[cod]
+.env
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data
+analytics-workspace-setup/output/
+analytics-workspace-setup/data/raw/

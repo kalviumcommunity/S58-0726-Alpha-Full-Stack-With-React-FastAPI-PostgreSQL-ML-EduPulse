@@ -1,15 +1,10 @@
 from fastapi import FastAPI
+from app.api.v1 import student, auth
+from app.database.base import Base, engine
 
-app = FastAPI(
-    title="EduPulse API",
-    description="AI-Powered Student Engagement & Academic Risk Prediction Platform",
-    version="1.0.0",
-)
+app = FastAPI()
 
+Base.metadata.create_all(bind=engine)
 
-@app.get("/")
-def root():
-    return {
-        "message": "Welcome to EduPulse API 🚀",
-        "status": "running",
-    }
+app.include_router(student.router)
+app.include_router(auth.router)

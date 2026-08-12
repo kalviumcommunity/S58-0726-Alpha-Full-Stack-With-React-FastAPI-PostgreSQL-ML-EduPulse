@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.database.base import SessionLocal
 from app.schemas.student import StudentCreate, StudentUpdate
-
 from app.dependencies.role import require_role
 from app.dependencies.auth_dependency import get_current_user
 
@@ -19,9 +18,9 @@ from app.services.student_service import (
 router = APIRouter()
 
 
-# ==============================
-# DB DEPENDENCY
-# ==============================
+# =========================
+# DATABASE DEPENDENCY
+# =========================
 
 def get_db():
     db = SessionLocal()
@@ -32,10 +31,10 @@ def get_db():
         db.close()
 
 
-# ==============================
+# =========================
 # CREATE STUDENT
-# Logged-in users only
-# ==============================
+# LOGGED-IN USERS ONLY
+# =========================
 
 @router.post("/students")
 def create(
@@ -46,17 +45,17 @@ def create(
     return create_student(db, student)
 
 
-# ==============================
+# =========================
 # GET ALL STUDENTS
 # ADMIN ONLY
-# Pagination + Search + Sort
-# ==============================
+# PAGINATION + SEARCH + SORT
+# =========================
 
 @router.get("/students")
 def read_all(
-    page: int = 1,
-    limit: int = 5,
-    search: str = None,
+    page: int = Query(1, ge=1),
+    limit: int = Query(5, ge=1, le=100),
+    search: str | None = None,
     sort_by: str = "id",
     order: str = "asc",
     db: Session = Depends(get_db),
@@ -72,10 +71,10 @@ def read_all(
     )
 
 
-# ==============================
+# =========================
 # GET ONE STUDENT
-# Logged-in users only
-# ==============================
+# LOGGED-IN USERS ONLY
+# =========================
 
 @router.get("/students/{student_id}")
 def read_one(
@@ -83,20 +82,23 @@ def read_one(
     db: Session = Depends(get_db),
     user=Depends(get_current_user)
 ):
-    return get_student_by_id(db, student_id)
+    return get_student_by_id(
+        db,
+        student_id
+    )
 
 
-# ==============================
+# =========================
 # UPDATE STUDENT
-# ADMIN ONLY
-# ==============================
+# LOGGED-IN USERS ONLY
+# =========================
 
 @router.put("/students/{student_id}")
 def update(
     student_id: int,
     student: StudentUpdate,
     db: Session = Depends(get_db),
-    user=Depends(require_role("admin"))
+    user=Depends(get_current_user)
 ):
     return update_student(
         db,
@@ -105,10 +107,10 @@ def update(
     )
 
 
-# ==============================
+# =========================
 # DELETE STUDENT
 # ADMIN ONLY
-# ==============================
+# =========================
 
 @router.delete("/students/{student_id}")
 def delete(

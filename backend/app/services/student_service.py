@@ -4,14 +4,42 @@ from fastapi import HTTPException
 from app.models.student import Student
 
 
-# ==============================
+# =========================
 # CREATE STUDENT
-# ==============================
+# =========================
 
 def create_student(db: Session, student):
+    existing_email = (
+        db.query(Student)
+        .filter(Student.email == student.email)
+        .first()
+    )
+
+    if existing_email:
+        raise HTTPException(
+            status_code=400,
+            detail="Student with this email already exists"
+        )
+
+    existing_student_id = (
+        db.query(Student)
+        .filter(Student.student_id == student.student_id)
+        .first()
+    )
+
+    if existing_student_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Student ID already exists"
+        )
+
     new_student = Student(
+        student_id=student.student_id,
         name=student.name,
-        email=student.email
+        email=student.email,
+        department=student.department,
+        year=student.year,
+        semester=student.semester
     )
 
     db.add(new_student)
@@ -21,10 +49,10 @@ def create_student(db: Session, student):
     return new_student
 
 
-# ==============================
+# =========================
 # GET ALL STUDENTS
-# Pagination + Search + Sort
-# ==============================
+# PAGINATION + SEARCH + SORT
+# =========================
 
 def get_students(
     db: Session,
@@ -43,10 +71,20 @@ def get_students(
         )
 
     # SORT
-    if hasattr(Student, sort_by):
-        column = getattr(Student, sort_by)
+    allowed_sort_fields = {
+        "id": Student.id,
+        "student_id": Student.student_id,
+        "name": Student.name,
+        "email": Student.email,
+        "department": Student.department,
+        "year": Student.year,
+        "semester": Student.semester
+    }
 
-        if order == "desc":
+    column = allowed_sort_fields.get(sort_by)
+
+    if column:
+        if order.lower() == "desc":
             query = query.order_by(column.desc())
         else:
             query = query.order_by(column.asc())
@@ -70,9 +108,9 @@ def get_students(
     }
 
 
-# ==============================
+# =========================
 # GET ONE STUDENT
-# ==============================
+# =========================
 
 def get_student_by_id(
     db: Session,
@@ -93,40 +131,78 @@ def get_student_by_id(
     return student
 
 
-# ==============================
+# =========================
 # UPDATE STUDENT
-# Admin only through API dependency
-# ==============================
+# =========================
 
 def update_student(
     db: Session,
     student_id: int,
-    student
+    student_data
 ):
-    existing_student = (
+    student = (
         db.query(Student)
         .filter(Student.id == student_id)
         .first()
     )
 
-    if not existing_student:
+    if not student:
         raise HTTPException(
             status_code=404,
             detail="Student not found"
         )
 
-    existing_student.name = student.name
-    existing_student.email = student.email
+    update_data = student_data.model_dump(
+        exclude_unset=True
+    )
+
+    # Check duplicate email
+    if "email" in update_data:
+        existing_email = (
+            db.query(Student)
+            .filter(
+                Student.email == update_data["email"],
+                Student.id != student_id
+            )
+            .first()
+        )
+
+        if existing_email:
+            raise HTTPException(
+                status_code=400,
+                detail="Student with this email already exists"
+            )
+
+    # Check duplicate student ID
+    if "student_id" in update_data:
+        existing_student_id = (
+            db.query(Student)
+            .filter(
+                Student.student_id == update_data["student_id"],
+                Student.id != student_id
+            )
+            .first()
+        )
+
+        if existing_student_id:
+            raise HTTPException(
+                status_code=400,
+                detail="Student ID already exists"
+            )
+
+    # Apply updates
+    for field, value in update_data.items():
+        setattr(student, field, value)
 
     db.commit()
-    db.refresh(existing_student)
+    db.refresh(student)
 
-    return existing_student
+    return student
 
 
-# ==============================
+# =========================
 # DELETE STUDENT
-# ==============================
+# =========================
 
 def delete_student(
     db: Session,

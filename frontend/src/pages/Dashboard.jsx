@@ -28,15 +28,26 @@ function Dashboard({ onLogout }) {
   const [total, setTotal] = useState(0);
 
   // CREATE
+  const [studentId, setStudentId] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [department, setDepartment] = useState("");
+  const [year, setYear] = useState("");
+  const [semester, setSemester] = useState("");
+
   const [creating, setCreating] = useState(false);
   const [createMessage, setCreateMessage] = useState("");
 
   // EDIT
   const [editingId, setEditingId] = useState(null);
+
+  const [editStudentId, setEditStudentId] = useState("");
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
+  const [editDepartment, setEditDepartment] = useState("");
+  const [editYear, setEditYear] = useState("");
+  const [editSemester, setEditSemester] = useState("");
+
   const [updating, setUpdating] = useState(false);
 
   // DETAILS
@@ -73,10 +84,7 @@ function Dashboard({ onLogout }) {
       setError("");
 
     } catch (error) {
-      console.error(
-        "Students error:",
-        error
-      );
+      console.error("Students error:", error);
 
       setError(
         error.response?.data?.detail ||
@@ -206,18 +214,26 @@ function Dashboard({ onLogout }) {
 
     try {
       await createStudent({
+        student_id: studentId,
         name,
         email,
+        department,
+        year: Number(year),
+        semester: Number(semester),
       });
 
+      // Clear form
+      setStudentId("");
       setName("");
       setEmail("");
+      setDepartment("");
+      setYear("");
+      setSemester("");
 
       setCreateMessage(
         "Student created successfully!"
       );
 
-      // Reload current page from backend
       await loadStudents(
         page,
         search,
@@ -247,13 +263,13 @@ function Dashboard({ onLogout }) {
   // ==============================
 
   const handleViewDetails = async (
-    studentId
+    studentIdValue
   ) => {
     setLoadingDetails(true);
 
     try {
       const student =
-        await getStudentById(studentId);
+        await getStudentById(studentIdValue);
 
       setSelectedStudent(student);
 
@@ -289,15 +305,25 @@ function Dashboard({ onLogout }) {
 
   const handleEditStudent = (student) => {
     setEditingId(student.id);
+
+    setEditStudentId(student.student_id);
     setEditName(student.name);
     setEditEmail(student.email);
+    setEditDepartment(student.department);
+    setEditYear(student.year);
+    setEditSemester(student.semester);
   };
 
 
   const handleCancelEdit = () => {
     setEditingId(null);
+
+    setEditStudentId("");
     setEditName("");
     setEditEmail("");
+    setEditDepartment("");
+    setEditYear("");
+    setEditSemester("");
   };
 
 
@@ -306,23 +332,27 @@ function Dashboard({ onLogout }) {
   // ==============================
 
   const handleUpdateStudent = async (
-    studentId
+    studentIdValue
   ) => {
     setUpdating(true);
 
     try {
       const updatedStudent =
         await updateStudent(
-          studentId,
+          studentIdValue,
           {
+            student_id: editStudentId,
             name: editName,
             email: editEmail,
+            department: editDepartment,
+            year: Number(editYear),
+            semester: Number(editSemester),
           }
         );
 
       if (
         selectedStudent &&
-        selectedStudent.id === studentId
+        selectedStudent.id === studentIdValue
       ) {
         setSelectedStudent(
           updatedStudent
@@ -331,7 +361,6 @@ function Dashboard({ onLogout }) {
 
       handleCancelEdit();
 
-      // Reload current page
       await loadStudents(
         page,
         search,
@@ -361,7 +390,7 @@ function Dashboard({ onLogout }) {
   // ==============================
 
   const handleDeleteStudent = async (
-    studentId
+    studentIdValue
   ) => {
     const confirmed =
       window.confirm(
@@ -372,19 +401,18 @@ function Dashboard({ onLogout }) {
       return;
     }
 
-    setDeletingId(studentId);
+    setDeletingId(studentIdValue);
 
     try {
-      await deleteStudent(studentId);
+      await deleteStudent(studentIdValue);
 
       if (
         selectedStudent &&
-        selectedStudent.id === studentId
+        selectedStudent.id === studentIdValue
       ) {
         setSelectedStudent(null);
       }
 
-      // Reload current page
       await loadStudents(
         page,
         search,
@@ -427,9 +455,24 @@ function Dashboard({ onLogout }) {
 
       <h2>Create Student</h2>
 
-      <form
-        onSubmit={handleCreateStudent}
-      >
+      <form onSubmit={handleCreateStudent}>
+
+        <div>
+          <label>Student ID</label>
+          <br />
+
+          <input
+            type="text"
+            placeholder="Example: STU007"
+            value={studentId}
+            onChange={(e) =>
+              setStudentId(e.target.value)
+            }
+            required
+          />
+        </div>
+
+        <br />
 
         <div>
           <label>Name</label>
@@ -458,6 +501,61 @@ function Dashboard({ onLogout }) {
             value={email}
             onChange={(e) =>
               setEmail(e.target.value)
+            }
+            required
+          />
+        </div>
+
+        <br />
+
+        <div>
+          <label>Department</label>
+          <br />
+
+          <input
+            type="text"
+            placeholder="Example: Computer Science"
+            value={department}
+            onChange={(e) =>
+              setDepartment(e.target.value)
+            }
+            required
+          />
+        </div>
+
+        <br />
+
+        <div>
+          <label>Year</label>
+          <br />
+
+          <input
+            type="number"
+            min="1"
+            max="5"
+            placeholder="Example: 3"
+            value={year}
+            onChange={(e) =>
+              setYear(e.target.value)
+            }
+            required
+          />
+        </div>
+
+        <br />
+
+        <div>
+          <label>Semester</label>
+          <br />
+
+          <input
+            type="number"
+            min="1"
+            max="10"
+            placeholder="Example: 6"
+            value={semester}
+            onChange={(e) =>
+              setSemester(e.target.value)
             }
             required
           />
@@ -496,9 +594,7 @@ function Dashboard({ onLogout }) {
           placeholder="Search by name"
           value={searchInput}
           onChange={(e) =>
-            setSearchInput(
-              e.target.value
-            )
+            setSearchInput(e.target.value)
           }
         />
 
@@ -549,12 +645,28 @@ function Dashboard({ onLogout }) {
           ID
         </option>
 
+        <option value="student_id">
+          Student ID
+        </option>
+
         <option value="name">
           Name
         </option>
 
         <option value="email">
           Email
+        </option>
+
+        <option value="department">
+          Department
+        </option>
+
+        <option value="year">
+          Year
+        </option>
+
+        <option value="semester">
+          Semester
         </option>
       </select>
 
@@ -599,6 +711,11 @@ function Dashboard({ onLogout }) {
           </p>
 
           <p>
+            <strong>Student ID:</strong>{" "}
+            {selectedStudent.student_id}
+          </p>
+
+          <p>
             <strong>Name:</strong>{" "}
             {selectedStudent.name}
           </p>
@@ -606,6 +723,21 @@ function Dashboard({ onLogout }) {
           <p>
             <strong>Email:</strong>{" "}
             {selectedStudent.email}
+          </p>
+
+          <p>
+            <strong>Department:</strong>{" "}
+            {selectedStudent.department}
+          </p>
+
+          <p>
+            <strong>Year:</strong>{" "}
+            {selectedStudent.year}
+          </p>
+
+          <p>
+            <strong>Semester:</strong>{" "}
+            {selectedStudent.semester}
           </p>
 
           <button
@@ -657,7 +789,9 @@ function Dashboard({ onLogout }) {
 
             {editingId === student.id ? (
 
-              /* EDIT MODE */
+              /* ==========================
+                 EDIT MODE
+              =========================== */
 
               <div>
 
@@ -665,6 +799,25 @@ function Dashboard({ onLogout }) {
                   <strong>ID:</strong>{" "}
                   {student.id}
                 </p>
+
+                <label>
+                  Student ID
+                </label>
+
+                <br />
+
+                <input
+                  type="text"
+                  value={editStudentId}
+                  onChange={(e) =>
+                    setEditStudentId(
+                      e.target.value
+                    )
+                  }
+                />
+
+                <br />
+                <br />
 
                 <label>
                   Name
@@ -704,6 +857,67 @@ function Dashboard({ onLogout }) {
                 <br />
                 <br />
 
+                <label>
+                  Department
+                </label>
+
+                <br />
+
+                <input
+                  type="text"
+                  value={editDepartment}
+                  onChange={(e) =>
+                    setEditDepartment(
+                      e.target.value
+                    )
+                  }
+                />
+
+                <br />
+                <br />
+
+                <label>
+                  Year
+                </label>
+
+                <br />
+
+                <input
+                  type="number"
+                  min="1"
+                  max="5"
+                  value={editYear}
+                  onChange={(e) =>
+                    setEditYear(
+                      e.target.value
+                    )
+                  }
+                />
+
+                <br />
+                <br />
+
+                <label>
+                  Semester
+                </label>
+
+                <br />
+
+                <input
+                  type="number"
+                  min="1"
+                  max="10"
+                  value={editSemester}
+                  onChange={(e) =>
+                    setEditSemester(
+                      e.target.value
+                    )
+                  }
+                />
+
+                <br />
+                <br />
+
                 <button
                   onClick={() =>
                     handleUpdateStudent(
@@ -720,9 +934,7 @@ function Dashboard({ onLogout }) {
                 {" "}
 
                 <button
-                  onClick={
-                    handleCancelEdit
-                  }
+                  onClick={handleCancelEdit}
                   disabled={updating}
                 >
                   Cancel
@@ -732,13 +944,20 @@ function Dashboard({ onLogout }) {
 
             ) : (
 
-              /* NORMAL MODE */
+              /* ==========================
+                 NORMAL MODE
+              =========================== */
 
               <div>
 
                 <p>
                   <strong>ID:</strong>{" "}
                   {student.id}
+                </p>
+
+                <p>
+                  <strong>Student ID:</strong>{" "}
+                  {student.student_id}
                 </p>
 
                 <p>
@@ -749,6 +968,21 @@ function Dashboard({ onLogout }) {
                 <p>
                   <strong>Email:</strong>{" "}
                   {student.email}
+                </p>
+
+                <p>
+                  <strong>Department:</strong>{" "}
+                  {student.department}
+                </p>
+
+                <p>
+                  <strong>Year:</strong>{" "}
+                  {student.year}
+                </p>
+
+                <p>
+                  <strong>Semester:</strong>{" "}
+                  {student.semester}
                 </p>
 
                 <button
@@ -819,9 +1053,7 @@ function Dashboard({ onLogout }) {
             </p>
 
             <button
-              onClick={
-                handlePreviousPage
-              }
+              onClick={handlePreviousPage}
               disabled={page === 1}
             >
               Previous
@@ -830,9 +1062,7 @@ function Dashboard({ onLogout }) {
             {" "}
 
             <button
-              onClick={
-                handleNextPage
-              }
+              onClick={handleNextPage}
               disabled={
                 page === totalPages
               }

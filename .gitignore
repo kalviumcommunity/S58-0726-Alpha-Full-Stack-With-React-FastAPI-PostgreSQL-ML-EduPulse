@@ -10,3 +10,4 @@ venv/
 # Data
 analytics-workspace-setup/output/
 analytics-workspace-setup/data/raw/
+pass.csv

@@ -74,30 +74,64 @@ def get_student_analytics(db: Session, student_id: int):
     # -------------------------
     # Risk Level
     # -------------------------
-    if (
-        attendance_percentage < 60
-        or assignment_completion_rate < 60
-        or average_exam_score < 50
+    has_attendance_data = total_attendance > 0
+    has_assignment_data = total_assignments > 0
+    has_exam_data = len(exams) > 0
+
+    has_any_academic_data = (
+        has_attendance_data
+        or has_assignment_data
+        or has_exam_data
+    )
+
+    if not has_any_academic_data:
+        risk_level = "No Data"
+
+    elif (
+        (has_attendance_data and attendance_percentage < 60)
+        or (
+            has_assignment_data
+            and assignment_completion_rate < 60
+        )
+        or (
+            has_exam_data
+            and average_exam_score < 50
+        )
     ):
         risk_level = "High"
 
     elif (
-        attendance_percentage < 75
-        or assignment_completion_rate < 75
-        or average_exam_score < 65
+        (has_attendance_data and attendance_percentage < 75)
+        or (
+            has_assignment_data
+            and assignment_completion_rate < 75
+        )
+        or (
+            has_exam_data
+            and average_exam_score < 65
+        )
     ):
         risk_level = "Medium"
 
     else:
         risk_level = "Low"
 
+    # -------------------------
+    # Return Analytics
+    # -------------------------
     return {
         "student_id": student_id,
-        "attendance_percentage": round(attendance_percentage, 2),
+        "attendance_percentage": round(
+            attendance_percentage,
+            2
+        ),
         "assignment_completion_rate": round(
             assignment_completion_rate,
             2
         ),
-        "average_exam_score": round(average_exam_score, 2),
+        "average_exam_score": round(
+            average_exam_score,
+            2
+        ),
         "risk_level": risk_level
     }

@@ -17,7 +17,8 @@ def get_dashboard_analytics(db: Session):
             "average_exam_score": 0,
             "high_risk_students": 0,
             "medium_risk_students": 0,
-            "low_risk_students": 0
+            "low_risk_students": 0,
+            "no_data_students": 0
         }
 
     analytics = [
@@ -25,42 +26,73 @@ def get_dashboard_analytics(db: Session):
         for student in students
     ]
 
-    average_attendance = (
-        sum(item["attendance_percentage"] for item in analytics)
-        / total_students
-    )
+    students_with_data = [
+        item
+        for item in analytics
+        if item["risk_level"] != "No Data"
+    ]
 
-    average_assignment_completion = (
-        sum(
-            item["assignment_completion_rate"]
-            for item in analytics
+    data_student_count = len(students_with_data)
+
+    if data_student_count > 0:
+        average_attendance = (
+            sum(
+                item["attendance_percentage"]
+                for item in students_with_data
+            )
+            / data_student_count
         )
-        / total_students
-    )
 
-    average_exam_score = (
-        sum(item["average_exam_score"] for item in analytics)
-        / total_students
-    )
+        average_assignment_completion = (
+            sum(
+                item["assignment_completion_rate"]
+                for item in students_with_data
+            )
+            / data_student_count
+        )
+
+        average_exam_score = (
+            sum(
+                item["average_exam_score"]
+                for item in students_with_data
+            )
+            / data_student_count
+        )
+    else:
+        average_attendance = 0
+        average_assignment_completion = 0
+        average_exam_score = 0
 
     high_risk_students = sum(
-        1 for item in analytics
+        1
+        for item in analytics
         if item["risk_level"] == "High"
     )
 
     medium_risk_students = sum(
-        1 for item in analytics
+        1
+        for item in analytics
         if item["risk_level"] == "Medium"
     )
 
     low_risk_students = sum(
-        1 for item in analytics
+        1
+        for item in analytics
         if item["risk_level"] == "Low"
+    )
+
+    no_data_students = sum(
+        1
+        for item in analytics
+        if item["risk_level"] == "No Data"
     )
 
     return {
         "total_students": total_students,
-        "average_attendance": round(average_attendance, 2),
+        "average_attendance": round(
+            average_attendance,
+            2
+        ),
         "average_assignment_completion": round(
             average_assignment_completion,
             2
@@ -71,5 +103,6 @@ def get_dashboard_analytics(db: Session):
         ),
         "high_risk_students": high_risk_students,
         "medium_risk_students": medium_risk_students,
-        "low_risk_students": low_risk_students
+        "low_risk_students": low_risk_students,
+        "no_data_students": no_data_students
     }

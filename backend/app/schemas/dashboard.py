@@ -9,3 +9,4 @@ class DashboardAnalyticsResponse(BaseModel):
     high_risk_students: int
     medium_risk_students: int
     low_risk_students: int
+    no_data_students: int

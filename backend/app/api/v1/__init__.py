@@ -6,3 +6,4 @@ from app.api.v1 import attendance
 from app.api.v1 import assignment
 from app.api.v1 import exam
 from app.api.v1 import analytics
+from app.api.v1 import subject_analytics

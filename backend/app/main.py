@@ -1,3 +1,4 @@
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -9,7 +10,8 @@ from app.api.v1 import (
     exam,
     analytics,
     dashboard,
-    risk
+    risk,
+    subject_analytics
 )
 from app.database.base import Base, engine
 
@@ -42,3 +44,4 @@ app.include_router(exam.router)
 app.include_router(analytics.router)
 app.include_router(dashboard.router)
 app.include_router(risk.router)
+app.include_router(subject_analytics.router)

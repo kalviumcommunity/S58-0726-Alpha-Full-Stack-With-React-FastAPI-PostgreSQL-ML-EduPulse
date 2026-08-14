@@ -11,7 +11,8 @@ from app.api.v1 import (
     analytics,
     dashboard,
     risk,
-    subject_analytics
+    subject_analytics,
+    performance_trend
 )
 from app.database.base import Base, engine
 
@@ -45,3 +46,4 @@ app.include_router(analytics.router)
 app.include_router(dashboard.router)
 app.include_router(risk.router)
 app.include_router(subject_analytics.router)
+app.include_router(performance_trend.router)

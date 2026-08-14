@@ -6,7 +6,8 @@ from app.api.v1 import (
     auth,
     attendance,
     assignment,
-    exam
+    exam,
+    analytics
 )
 from app.database.base import Base, engine
 
@@ -36,3 +37,4 @@ app.include_router(auth.router)
 app.include_router(attendance.router)
 app.include_router(assignment.router)
 app.include_router(exam.router)
+app.include_router(analytics.router)

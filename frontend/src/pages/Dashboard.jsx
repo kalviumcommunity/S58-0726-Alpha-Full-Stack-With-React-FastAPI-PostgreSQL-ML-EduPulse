@@ -1,4 +1,8 @@
 import {
+  getDashboardAnalytics,
+} from "../services/analytics";
+
+import {
   useCallback,
   useEffect,
   useState,
@@ -17,6 +21,11 @@ function Dashboard({ onLogout }) {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // DASHBOARD ANALYTICS
+  const [analytics, setAnalytics] = useState(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
+  const [analyticsError, setAnalyticsError] = useState("");
 
   // SEARCH
   const [search, setSearch] = useState("");
@@ -62,10 +71,36 @@ function Dashboard({ onLogout }) {
   const [deletingId, setDeletingId] = useState(null);
 
 
+
+
+  const loadDashboardAnalytics = useCallback(async () => {
+  setAnalyticsLoading(true);
+
+    try {
+      const data = await getDashboardAnalytics();
+
+      setAnalytics(data);
+      setAnalyticsError("");
+
+    } catch (error) {
+      console.error(
+      "Dashboard analytics error:",
+      error
+    );
+
+    setAnalyticsError(
+      error.response?.data?.detail ||
+      "Unable to load dashboard analytics"
+    );
+
+  } finally {
+    setAnalyticsLoading(false);
+  }
+}, []);
+
   // ==============================
   // LOAD STUDENTS
   // ==============================
-
   const loadStudents = useCallback(async (
     pageValue,
     searchValue,
@@ -112,6 +147,10 @@ function Dashboard({ onLogout }) {
   // eslint-disable-next-line react-hooks/set-state-in-effect
   loadStudents(1, "", "id", "asc");
 }, [loadStudents]);
+
+  useEffect(() => {
+  loadDashboardAnalytics();
+}, [loadDashboardAnalytics]);
 
 
   // ==============================
@@ -247,6 +286,7 @@ function Dashboard({ onLogout }) {
         sortBy,
         order
       );
+      await loadDashboardAnalytics();
 
     } catch (error) {
       console.error(
@@ -426,6 +466,7 @@ function Dashboard({ onLogout }) {
         sortBy,
         order
       );
+      await loadDashboardAnalytics();
 
     } catch (error) {
       console.error(
@@ -452,7 +493,63 @@ function Dashboard({ onLogout }) {
       <button onClick={onLogout}>
         Logout
       </button>
+      <hr />
 
+<h2>Academic Analytics</h2>
+
+{analyticsLoading && (
+  <p>Loading analytics...</p>
+)}
+
+{analyticsError && (
+  <p>{analyticsError}</p>
+)}
+
+{analytics && !analyticsLoading && (
+  <div>
+    <div>
+      <h3>Total Students</h3>
+      <p>{analytics.total_students}</p>
+    </div>
+
+    <div>
+      <h3>Average Attendance</h3>
+      <p>{analytics.average_attendance}%</p>
+    </div>
+
+    <div>
+      <h3>Assignment Completion</h3>
+      <p>
+        {analytics.average_assignment_completion}%
+      </p>
+    </div>
+
+    <div>
+      <h3>Average Exam Score</h3>
+      <p>{analytics.average_exam_score}</p>
+    </div>
+
+    <div>
+      <h3>High Risk Students</h3>
+      <p>{analytics.high_risk_students}</p>
+    </div>
+
+    <div>
+      <h3>Medium Risk Students</h3>
+      <p>{analytics.medium_risk_students}</p>
+    </div>
+
+    <div>
+      <h3>Low Risk Students</h3>
+      <p>{analytics.low_risk_students}</p>
+    </div>
+
+    <div>
+      <h3>No Data Students</h3>
+      <p>{analytics.no_data_students}</p>
+    </div>
+  </div>
+)}
       <hr />
 
       <h2>Create Student</h2>

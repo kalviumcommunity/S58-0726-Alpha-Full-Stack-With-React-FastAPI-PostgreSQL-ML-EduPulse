@@ -1,4 +1,8 @@
-import { useEffect, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 
 import {
   getStudents,
@@ -62,11 +66,11 @@ function Dashboard({ onLogout }) {
   // LOAD STUDENTS
   // ==============================
 
-  const loadStudents = async (
-    pageValue = page,
-    searchValue = search,
-    sortValue = sortBy,
-    orderValue = order
+  const loadStudents = useCallback(async (
+    pageValue,
+    searchValue,
+    sortValue,
+    orderValue
   ) => {
     setLoading(true);
 
@@ -84,7 +88,10 @@ function Dashboard({ onLogout }) {
       setError("");
 
     } catch (error) {
-      console.error("Students error:", error);
+      console.error(
+        "Students error:",
+        error
+      );
 
       setError(
         error.response?.data?.detail ||
@@ -94,7 +101,7 @@ function Dashboard({ onLogout }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [limit]);
 
 
   // ==============================
@@ -102,8 +109,9 @@ function Dashboard({ onLogout }) {
   // ==============================
 
   useEffect(() => {
-    loadStudents(1, "", "id", "asc");
-  }, []);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  loadStudents(1, "", "id", "asc");
+}, [loadStudents]);
 
 
   // ==============================
@@ -222,7 +230,6 @@ function Dashboard({ onLogout }) {
         semester: Number(semester),
       });
 
-      // Clear form
       setStudentId("");
       setName("");
       setEmail("");
@@ -448,11 +455,6 @@ function Dashboard({ onLogout }) {
 
       <hr />
 
-
-      {/* ==========================
-          CREATE STUDENT
-      =========================== */}
-
       <h2>Create Student</h2>
 
       <form onSubmit={handleCreateStudent}>
@@ -580,11 +582,6 @@ function Dashboard({ onLogout }) {
 
       <hr />
 
-
-      {/* ==========================
-          SEARCH
-      =========================== */}
-
       <h2>Search Students</h2>
 
       <form onSubmit={handleSearch}>
@@ -623,11 +620,6 @@ function Dashboard({ onLogout }) {
       )}
 
       <br />
-
-
-      {/* ==========================
-          SORT
-      =========================== */}
 
       <h2>Sort Students</h2>
 
@@ -695,11 +687,6 @@ function Dashboard({ onLogout }) {
 
       <hr />
 
-
-      {/* ==========================
-          STUDENT DETAILS
-      =========================== */}
-
       {selectedStudent && (
         <div>
 
@@ -751,11 +738,6 @@ function Dashboard({ onLogout }) {
         </div>
       )}
 
-
-      {/* ==========================
-          STUDENTS
-      =========================== */}
-
       <h2>Students</h2>
 
       {loading && (
@@ -780,7 +762,6 @@ function Dashboard({ onLogout }) {
           </p>
         )}
 
-
       {!loading &&
         !error &&
         students.map((student) => (
@@ -788,10 +769,6 @@ function Dashboard({ onLogout }) {
           <div key={student.id}>
 
             {editingId === student.id ? (
-
-              /* ==========================
-                 EDIT MODE
-              =========================== */
 
               <div>
 
@@ -944,10 +921,6 @@ function Dashboard({ onLogout }) {
 
             ) : (
 
-              /* ==========================
-                 NORMAL MODE
-              =========================== */
-
               <div>
 
                 <p>
@@ -1035,11 +1008,6 @@ function Dashboard({ onLogout }) {
           </div>
 
         ))}
-
-
-      {/* ==========================
-          PAGINATION
-      =========================== */}
 
       {!loading &&
         !error &&

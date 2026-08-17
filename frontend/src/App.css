@@ -167,7 +167,7 @@
 
   &::before,
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     top: -4.5px;
     border: 5px solid transparent;
@@ -180,5 +180,158 @@
   &::after {
     right: 0;
     border-right-color: var(--border);
+  }
+}
+
+/* =========================================
+   EDUPULSE DASHBOARD - DAY 18
+   ========================================= */
+
+.dashboard {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 32px;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.dashboard-section {
+  margin-bottom: 32px;
+}
+
+.dashboard-section-header {
+  margin-bottom: 18px;
+}
+
+.dashboard-section-header h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.dashboard-section-header p {
+  margin-top: 5px;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.analytics-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+.analytics-card h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.analytics-card-value {
+  margin-top: 10px;
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.analytics-card-label {
+  margin-top: 5px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.risk-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.risk-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+.risk-card h3 {
+  margin: 0 0 12px;
+  font-size: 17px;
+}
+
+.risk-card p {
+  margin: 7px 0;
+  font-size: 14px;
+}
+
+.risk-high {
+  border-left: 5px solid #dc2626;
+}
+
+.risk-medium {
+  border-left: 5px solid #f59e0b;
+}
+
+.risk-low {
+  border-left: 5px solid #16a34a;
+}
+
+.status-message {
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: var(--accent-bg);
+  color: var(--text-h);
+  font-size: 14px;
+}
+
+.error-message {
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: #fee2e2;
+  color: #991b1b;
+  font-size: 14px;
+}
+
+@media (max-width: 900px) {
+  .analytics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .risk-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .dashboard {
+    padding: 20px 16px;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .analytics-grid,
+  .risk-grid {
+    grid-template-columns: 1fr;
   }
 }

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import "../App.css";
 
 import {
   getDashboardAnalytics,
@@ -504,110 +505,170 @@ function Dashboard({ onLogout }) {
   // ==============================
 
   return (
-    <div>
-      <h1>EduPulse Dashboard</h1>
-      <button onClick={onLogout}>Logout</button>
+    <div className="dashboard">
+      <div className="dashboard-header">
+        <div>
+          <h1>EduPulse Dashboard</h1>
+          <p>University academic performance and risk monitoring.</p>
+        </div>
+
+        <button onClick={onLogout}>Logout</button>
+      </div>
       <hr />
       {/* ============================== */}
       {/* ACADEMIC ANALYTICS */}
       {/* ============================== */}
-      <h2>Academic Analytics</h2>
-      {analyticsLoading && <p>Loading analytics...</p>}
-      {analyticsError && <p>{analyticsError}</p>}
-      {analytics && !analyticsLoading && (
-        <div>
-          <div>
-            <h3>Total Students</h3>
-
-            <p>{analytics.total_students}</p>
-          </div>
-
-          <div>
-            <h3>Average Attendance</h3>
-
-            <p>{analytics.average_attendance}%</p>
-          </div>
-
-          <div>
-            <h3>Assignment Completion</h3>
-
-            <p>{analytics.average_assignment_completion}%</p>
-          </div>
-
-          <div>
-            <h3>Average Exam Score</h3>
-
-            <p>{analytics.average_exam_score}</p>
-          </div>
-
-          <div>
-            <h3>High Risk Students</h3>
-
-            <p>{analytics.high_risk_students}</p>
-          </div>
-
-          <div>
-            <h3>Medium Risk Students</h3>
-
-            <p>{analytics.medium_risk_students}</p>
-          </div>
-
-          <div>
-            <h3>Low Risk Students</h3>
-
-            <p>{analytics.low_risk_students}</p>
-          </div>
-
-          <div>
-            <h3>No Data Students</h3>
-
-            <p>{analytics.no_data_students}</p>
-          </div>
+      <section className="dashboard-section">
+        <div className="dashboard-section-header">
+          <h2>Academic Analytics</h2>
+          <p>Overview of academic performance across all students.</p>
         </div>
-      )}
-      <hr />
+
+        {analyticsLoading && (
+          <p className="status-message">Loading analytics...</p>
+        )}
+
+        {analyticsError && <p className="error-message">{analyticsError}</p>}
+
+        {analytics && !analyticsLoading && (
+          <div className="analytics-grid">
+            <div className="analytics-card">
+              <h3>Total Students</h3>
+              <div className="analytics-card-value">
+                {analytics.total_students}
+              </div>
+              <div className="analytics-card-label">Students enrolled</div>
+            </div>
+
+            <div className="analytics-card">
+              <h3>Average Attendance</h3>
+              <div className="analytics-card-value">
+                {analytics.average_attendance}%
+              </div>
+              <div className="analytics-card-label">Overall attendance</div>
+            </div>
+
+            <div className="analytics-card">
+              <h3>Assignment Completion</h3>
+              <div className="analytics-card-value">
+                {analytics.average_assignment_completion}%
+              </div>
+              <div className="analytics-card-label">Average completion</div>
+            </div>
+
+            <div className="analytics-card">
+              <h3>Average Exam Score</h3>
+              <div className="analytics-card-value">
+                {analytics.average_exam_score}
+              </div>
+              <div className="analytics-card-label">
+                Overall exam performance
+              </div>
+            </div>
+
+            <div className="analytics-card">
+              <h3>High Risk Students</h3>
+              <div className="analytics-card-value">
+                {analytics.high_risk_students}
+              </div>
+              <div className="analytics-card-label">
+                Require immediate attention
+              </div>
+            </div>
+
+            <div className="analytics-card">
+              <h3>Medium Risk Students</h3>
+              <div className="analytics-card-value">
+                {analytics.medium_risk_students}
+              </div>
+              <div className="analytics-card-label">Need monitoring</div>
+            </div>
+
+            <div className="analytics-card">
+              <h3>Low Risk Students</h3>
+              <div className="analytics-card-value">
+                {analytics.low_risk_students}
+              </div>
+              <div className="analytics-card-label">Performing well</div>
+            </div>
+
+            <div className="analytics-card">
+              <h3>No Data Students</h3>
+              <div className="analytics-card-value">
+                {analytics.no_data_students}
+              </div>
+              <div className="analytics-card-label">No academic records</div>
+            </div>
+          </div>
+        )}
+      </section>
       {/* ============================== */}
       {/* RISK MONITORING */}
       {/* ============================== */}
-      <h2>Risk Monitoring</h2>
-      {riskLoading && <p>Loading risk students...</p>}
-      {riskError && <p>{riskError}</p>}
-      {!riskLoading && !riskError && riskStudents.length === 0 && (
-        <p>No high or medium risk students found.</p>
-      )}
-      {!riskLoading && !riskError && riskStudents.length > 0 && (
-        <div>
-          {riskStudents.map((student) => (
-            <div key={student.student_id}>
-              <h3>{student.name}</h3>
-
-              <p>
-                <strong>Student Code:</strong> {student.student_code}
-              </p>
-
-              <p>
-                <strong>Attendance:</strong> {student.attendance_percentage}%
-              </p>
-
-              <p>
-                <strong>Assignment Completion:</strong>{" "}
-                {student.assignment_completion_rate}%
-              </p>
-
-              <p>
-                <strong>Average Exam Score:</strong>{" "}
-                {student.average_exam_score}
-              </p>
-
-              <p>
-                <strong>Risk Level:</strong> {student.risk_level}
-              </p>
-
-              <hr />
-            </div>
-          ))}
+      <section className="dashboard-section">
+        <div className="dashboard-section-header">
+          <h2>Risk Monitoring</h2>
+          <p>Students currently requiring academic attention.</p>
         </div>
-      )}
+
+        {riskLoading && (
+          <p className="status-message">Loading risk students...</p>
+        )}
+
+        {riskError && <p className="error-message">{riskError}</p>}
+
+        {!riskLoading && !riskError && riskStudents.length === 0 && (
+          <p className="status-message">
+            No high or medium risk students found.
+          </p>
+        )}
+
+        {!riskLoading && !riskError && riskStudents.length > 0 && (
+          <div className="risk-grid">
+            {riskStudents.map((student) => {
+              const riskClass =
+                student.risk_level === "High"
+                  ? "risk-high"
+                  : student.risk_level === "Medium"
+                    ? "risk-medium"
+                    : "risk-low";
+
+              return (
+                <div
+                  key={student.student_id}
+                  className={`risk-card ${riskClass}`}
+                >
+                  <h3>{student.name}</h3>
+
+                  <p>
+                    <strong>Student Code:</strong> {student.student_code}
+                  </p>
+
+                  <p>
+                    <strong>Attendance:</strong> {student.attendance_percentage}
+                    %
+                  </p>
+
+                  <p>
+                    <strong>Assignment Completion:</strong>{" "}
+                    {student.assignment_completion_rate}%
+                  </p>
+
+                  <p>
+                    <strong>Average Exam Score:</strong>{" "}
+                    {student.average_exam_score}
+                  </p>
+
+                  <p>
+                    <strong>Risk Level:</strong> {student.risk_level}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+      <hr />
       <hr />
       {/* ============================== */}
       {/* CREATE STUDENT */}

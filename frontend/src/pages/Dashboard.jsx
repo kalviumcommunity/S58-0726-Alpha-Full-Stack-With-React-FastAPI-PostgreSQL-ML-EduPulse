@@ -1,12 +1,10 @@
-import {
-  getDashboardAnalytics,
-} from "../services/analytics";
+import { useCallback, useEffect, useState } from "react";
 
 import {
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+  getDashboardAnalytics,
+  getRiskStudents,
+  getStudentAnalytics,
+} from "../services/analytics";
 
 import {
   getStudents,
@@ -16,178 +14,261 @@ import {
   deleteStudent,
 } from "../services/student";
 
-
 function Dashboard({ onLogout }) {
+  // ==============================
+  // STUDENTS
+  // ==============================
+
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // ==============================
   // DASHBOARD ANALYTICS
+  // ==============================
+
   const [analytics, setAnalytics] = useState(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(true);
   const [analyticsError, setAnalyticsError] = useState("");
 
+  // ==============================
+  // RISK MONITORING
+  // ==============================
+
+  const [riskStudents, setRiskStudents] = useState([]);
+  const [riskLoading, setRiskLoading] = useState(true);
+  const [riskError, setRiskError] = useState("");
+
+  // ==============================
+  // STUDENT ANALYTICS
+  // ==============================
+
+  const [studentAnalytics, setStudentAnalytics] = useState(null);
+
+  const [studentAnalyticsLoading, setStudentAnalyticsLoading] = useState(false);
+
+  const [studentAnalyticsError, setStudentAnalyticsError] = useState("");
+
+  // ==============================
   // SEARCH
+  // ==============================
+
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
 
+  // ==============================
   // SORT
+  // ==============================
+
   const [sortBy, setSortBy] = useState("id");
+
   const [order, setOrder] = useState("asc");
 
+  // ==============================
   // PAGINATION
+  // ==============================
+
   const [page, setPage] = useState(1);
   const [limit] = useState(5);
   const [total, setTotal] = useState(0);
 
+  // ==============================
   // CREATE
+  // ==============================
+
   const [studentId, setStudentId] = useState("");
+
   const [name, setName] = useState("");
+
   const [email, setEmail] = useState("");
+
   const [department, setDepartment] = useState("");
+
   const [year, setYear] = useState("");
+
   const [semester, setSemester] = useState("");
 
   const [creating, setCreating] = useState(false);
+
   const [createMessage, setCreateMessage] = useState("");
 
+  // ==============================
   // EDIT
+  // ==============================
+
   const [editingId, setEditingId] = useState(null);
 
   const [editStudentId, setEditStudentId] = useState("");
+
   const [editName, setEditName] = useState("");
+
   const [editEmail, setEditEmail] = useState("");
+
   const [editDepartment, setEditDepartment] = useState("");
+
   const [editYear, setEditYear] = useState("");
+
   const [editSemester, setEditSemester] = useState("");
 
   const [updating, setUpdating] = useState(false);
 
+  // ==============================
   // DETAILS
+  // ==============================
+
   const [selectedStudent, setSelectedStudent] = useState(null);
+
   const [loadingDetails, setLoadingDetails] = useState(false);
 
+  // ==============================
   // DELETE
+  // ==============================
+
   const [deletingId, setDeletingId] = useState(null);
 
-
-
+  // ==============================
+  // LOAD DASHBOARD ANALYTICS
+  // ==============================
 
   const loadDashboardAnalytics = useCallback(async () => {
-  setAnalyticsLoading(true);
+    setAnalyticsLoading(true);
 
     try {
       const data = await getDashboardAnalytics();
 
       setAnalytics(data);
       setAnalyticsError("");
-
     } catch (error) {
-      console.error(
-      "Dashboard analytics error:",
-      error
-    );
+      console.error("Dashboard analytics error:", error);
 
-    setAnalyticsError(
-      error.response?.data?.detail ||
-      "Unable to load dashboard analytics"
-    );
+      setAnalyticsError(
+        error.response?.data?.detail || "Unable to load dashboard analytics",
+      );
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  }, []);
 
-  } finally {
-    setAnalyticsLoading(false);
-  }
-}, []);
+  // ==============================
+  // LOAD RISK STUDENTS
+  // ==============================
+
+  const loadRiskStudents = useCallback(async () => {
+    setRiskLoading(true);
+
+    try {
+      const data = await getRiskStudents();
+
+      setRiskStudents(data);
+      setRiskError("");
+    } catch (error) {
+      console.error("Risk students error:", error);
+
+      setRiskError(
+        error.response?.data?.detail || "Unable to load risk students",
+      );
+    } finally {
+      setRiskLoading(false);
+    }
+  }, []);
+
+  // ==============================
+  // LOAD STUDENT ANALYTICS
+  // ==============================
+
+  const loadStudentAnalytics = useCallback(async (studentIdValue) => {
+    setStudentAnalyticsLoading(true);
+    setStudentAnalyticsError("");
+
+    try {
+      const data = await getStudentAnalytics(studentIdValue);
+
+      console.log("Student analytics data:", data);
+
+      setStudentAnalytics(data);
+    } catch (error) {
+      console.error("Student analytics error:", error);
+
+      setStudentAnalytics(null);
+
+      setStudentAnalyticsError(
+        error.response?.data?.detail || "Unable to load student analytics",
+      );
+    } finally {
+      setStudentAnalyticsLoading(false);
+    }
+  }, []);
 
   // ==============================
   // LOAD STUDENTS
   // ==============================
-  const loadStudents = useCallback(async (
-    pageValue,
-    searchValue,
-    sortValue,
-    orderValue
-  ) => {
-    setLoading(true);
 
-    try {
-      const data = await getStudents(
-        pageValue,
-        limit,
-        searchValue,
-        sortValue,
-        orderValue
-      );
+  const loadStudents = useCallback(
+    async (pageValue, searchValue, sortValue, orderValue) => {
+      setLoading(true);
 
-      setStudents(data.data);
-      setTotal(data.total);
-      setError("");
+      try {
+        const data = await getStudents(
+          pageValue,
+          limit,
+          searchValue,
+          sortValue,
+          orderValue,
+        );
 
-    } catch (error) {
-      console.error(
-        "Students error:",
-        error
-      );
+        setStudents(data.data);
+        setTotal(data.total);
+        setError("");
+      } catch (error) {
+        console.error("Students error:", error);
 
-      setError(
-        error.response?.data?.detail ||
-        "Unable to load students"
-      );
-
-    } finally {
-      setLoading(false);
-    }
-  }, [limit]);
-
+        setError(error.response?.data?.detail || "Unable to load students");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [limit],
+  );
 
   // ==============================
   // INITIAL LOAD
   // ==============================
 
   useEffect(() => {
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  loadStudents(1, "", "id", "asc");
-}, [loadStudents]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadStudents(1, "", "id", "asc");
+  }, [loadStudents]);
 
   useEffect(() => {
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  loadDashboardAnalytics();
-}, [loadDashboardAnalytics]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadDashboardAnalytics();
+  }, [loadDashboardAnalytics]);
 
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadRiskStudents();
+  }, [loadRiskStudents]);
 
   // ==============================
   // SEARCH
   // ==============================
 
-  const handleSearch = (e) => {
-    e.preventDefault();
+  const handleSearch = (event) => {
+    event.preventDefault();
 
-    const newSearch = searchInput;
-
-    setSearch(newSearch);
+    setSearch(searchInput);
     setPage(1);
 
-    loadStudents(
-      1,
-      newSearch,
-      sortBy,
-      order
-    );
+    loadStudents(1, searchInput, sortBy, order);
   };
-
 
   const handleClearSearch = () => {
     setSearchInput("");
     setSearch("");
     setPage(1);
 
-    loadStudents(
-      1,
-      "",
-      sortBy,
-      order
-    );
+    loadStudents(1, "", sortBy, order);
   };
-
 
   // ==============================
   // SORT
@@ -196,23 +277,14 @@ function Dashboard({ onLogout }) {
   const handleSort = () => {
     setPage(1);
 
-    loadStudents(
-      1,
-      search,
-      sortBy,
-      order
-    );
+    loadStudents(1, search, sortBy, order);
   };
-
 
   // ==============================
   // PAGINATION
   // ==============================
 
-  const totalPages = Math.ceil(
-    total / limit
-  );
-
+  const totalPages = Math.ceil(total / limit);
 
   const handlePreviousPage = () => {
     if (page <= 1) {
@@ -223,14 +295,8 @@ function Dashboard({ onLogout }) {
 
     setPage(newPage);
 
-    loadStudents(
-      newPage,
-      search,
-      sortBy,
-      order
-    );
+    loadStudents(newPage, search, sortBy, order);
   };
-
 
   const handleNextPage = () => {
     if (page >= totalPages) {
@@ -241,21 +307,15 @@ function Dashboard({ onLogout }) {
 
     setPage(newPage);
 
-    loadStudents(
-      newPage,
-      search,
-      sortBy,
-      order
-    );
+    loadStudents(newPage, search, sortBy, order);
   };
 
-
   // ==============================
-  // CREATE
+  // CREATE STUDENT
   // ==============================
 
-  const handleCreateStudent = async (e) => {
-    e.preventDefault();
+  const handleCreateStudent = async (event) => {
+    event.preventDefault();
 
     setCreating(true);
     setCreateMessage("");
@@ -277,66 +337,47 @@ function Dashboard({ onLogout }) {
       setYear("");
       setSemester("");
 
-      setCreateMessage(
-        "Student created successfully!"
-      );
+      setCreateMessage("Student created successfully!");
 
-      await loadStudents(
-        page,
-        search,
-        sortBy,
-        order
-      );
+      await loadStudents(page, search, sortBy, order);
+
       await loadDashboardAnalytics();
-
+      await loadRiskStudents();
     } catch (error) {
-      console.error(
-        "Create student error:",
-        error
-      );
+      console.error("Create student error:", error);
 
       setCreateMessage(
-        error.response?.data?.detail ||
-        "Failed to create student"
+        error.response?.data?.detail || "Failed to create student",
       );
-
     } finally {
       setCreating(false);
     }
   };
 
-
   // ==============================
   // VIEW DETAILS
   // ==============================
 
-  const handleViewDetails = async (
-    studentIdValue
-  ) => {
+  const handleViewDetails = async (studentIdValue) => {
     setLoadingDetails(true);
 
+    setStudentAnalytics(null);
+    setStudentAnalyticsError("");
+
     try {
-      const student =
-        await getStudentById(studentIdValue);
+      const student = await getStudentById(studentIdValue);
 
       setSelectedStudent(student);
 
+      await loadStudentAnalytics(studentIdValue);
     } catch (error) {
-      console.error(
-        "Student details error:",
-        error
-      );
+      console.error("Student details error:", error);
 
-      alert(
-        error.response?.data?.detail ||
-        "Unable to load student details"
-      );
-
+      alert(error.response?.data?.detail || "Unable to load student details");
     } finally {
       setLoadingDetails(false);
     }
   };
-
 
   // ==============================
   // CLOSE DETAILS
@@ -344,24 +385,27 @@ function Dashboard({ onLogout }) {
 
   const handleCloseDetails = () => {
     setSelectedStudent(null);
+    setStudentAnalytics(null);
+    setStudentAnalyticsError("");
   };
 
-
   // ==============================
-  // EDIT
+  // EDIT STUDENT
   // ==============================
 
   const handleEditStudent = (student) => {
     setEditingId(student.id);
 
     setEditStudentId(student.student_id);
+
     setEditName(student.name);
     setEditEmail(student.email);
+
     setEditDepartment(student.department);
+
     setEditYear(student.year);
     setEditSemester(student.semester);
   };
-
 
   const handleCancelEdit = () => {
     setEditingId(null);
@@ -374,76 +418,58 @@ function Dashboard({ onLogout }) {
     setEditSemester("");
   };
 
-
   // ==============================
-  // UPDATE
+  // UPDATE STUDENT
   // ==============================
 
-  const handleUpdateStudent = async (
-    studentIdValue
-  ) => {
+  const handleUpdateStudent = async (studentIdValue) => {
     setUpdating(true);
 
     try {
-      const updatedStudent =
-        await updateStudent(
-          studentIdValue,
-          {
-            student_id: editStudentId,
-            name: editName,
-            email: editEmail,
-            department: editDepartment,
-            year: Number(editYear),
-            semester: Number(editSemester),
-          }
-        );
+      const updatedStudent = await updateStudent(studentIdValue, {
+        student_id: editStudentId,
+        name: editName,
+        email: editEmail,
+        department: editDepartment,
+        year: Number(editYear),
+        semester: Number(editSemester),
+      });
 
-      if (
-        selectedStudent &&
-        selectedStudent.id === studentIdValue
-      ) {
-        setSelectedStudent(
-          updatedStudent
-        );
+      setSelectedStudent((currentStudent) => {
+        if (currentStudent && currentStudent.id === studentIdValue) {
+          return updatedStudent;
+        }
+
+        return currentStudent;
+      });
+
+      if (selectedStudent && selectedStudent.id === studentIdValue) {
+        await loadStudentAnalytics(studentIdValue);
       }
 
       handleCancelEdit();
 
-      await loadStudents(
-        page,
-        search,
-        sortBy,
-        order
-      );
+      await loadStudents(page, search, sortBy, order);
 
+      await loadDashboardAnalytics();
+      await loadRiskStudents();
     } catch (error) {
-      console.error(
-        "Update student error:",
-        error
-      );
+      console.error("Update student error:", error);
 
-      alert(
-        error.response?.data?.detail ||
-        "Failed to update student"
-      );
-
+      alert(error.response?.data?.detail || "Failed to update student");
     } finally {
       setUpdating(false);
     }
   };
 
-
   // ==============================
-  // DELETE
+  // DELETE STUDENT
   // ==============================
 
-  const handleDeleteStudent = async (
-    studentIdValue
-  ) => {
-    const confirmed =
-      window.confirm(
-        "Are you sure you want to delete this student?"
-      );
+  const handleDeleteStudent = async (studentIdValue) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this student?",
+    );
 
     if (!confirmed) {
       return;
@@ -454,120 +480,150 @@ function Dashboard({ onLogout }) {
     try {
       await deleteStudent(studentIdValue);
 
-      if (
-        selectedStudent &&
-        selectedStudent.id === studentIdValue
-      ) {
+      if (selectedStudent && selectedStudent.id === studentIdValue) {
         setSelectedStudent(null);
+        setStudentAnalytics(null);
+        setStudentAnalyticsError("");
       }
 
-      await loadStudents(
-        page,
-        search,
-        sortBy,
-        order
-      );
+      await loadStudents(page, search, sortBy, order);
+
       await loadDashboardAnalytics();
-
+      await loadRiskStudents();
     } catch (error) {
-      console.error(
-        "Delete student error:",
-        error
-      );
+      console.error("Delete student error:", error);
 
-      alert(
-        error.response?.data?.detail ||
-        "Failed to delete student"
-      );
-
+      alert(error.response?.data?.detail || "Failed to delete student");
     } finally {
       setDeletingId(null);
     }
   };
 
+  // ==============================
+  // RENDER
+  // ==============================
 
   return (
     <div>
-
       <h1>EduPulse Dashboard</h1>
-
-      <button onClick={onLogout}>
-        Logout
-      </button>
+      <button onClick={onLogout}>Logout</button>
       <hr />
+      {/* ============================== */}
+      {/* ACADEMIC ANALYTICS */}
+      {/* ============================== */}
+      <h2>Academic Analytics</h2>
+      {analyticsLoading && <p>Loading analytics...</p>}
+      {analyticsError && <p>{analyticsError}</p>}
+      {analytics && !analyticsLoading && (
+        <div>
+          <div>
+            <h3>Total Students</h3>
 
-<h2>Academic Analytics</h2>
+            <p>{analytics.total_students}</p>
+          </div>
 
-{analyticsLoading && (
-  <p>Loading analytics...</p>
-)}
+          <div>
+            <h3>Average Attendance</h3>
 
-{analyticsError && (
-  <p>{analyticsError}</p>
-)}
+            <p>{analytics.average_attendance}%</p>
+          </div>
 
-{analytics && !analyticsLoading && (
-  <div>
-    <div>
-      <h3>Total Students</h3>
-      <p>{analytics.total_students}</p>
-    </div>
+          <div>
+            <h3>Assignment Completion</h3>
 
-    <div>
-      <h3>Average Attendance</h3>
-      <p>{analytics.average_attendance}%</p>
-    </div>
+            <p>{analytics.average_assignment_completion}%</p>
+          </div>
 
-    <div>
-      <h3>Assignment Completion</h3>
-      <p>
-        {analytics.average_assignment_completion}%
-      </p>
-    </div>
+          <div>
+            <h3>Average Exam Score</h3>
 
-    <div>
-      <h3>Average Exam Score</h3>
-      <p>{analytics.average_exam_score}</p>
-    </div>
+            <p>{analytics.average_exam_score}</p>
+          </div>
 
-    <div>
-      <h3>High Risk Students</h3>
-      <p>{analytics.high_risk_students}</p>
-    </div>
+          <div>
+            <h3>High Risk Students</h3>
 
-    <div>
-      <h3>Medium Risk Students</h3>
-      <p>{analytics.medium_risk_students}</p>
-    </div>
+            <p>{analytics.high_risk_students}</p>
+          </div>
 
-    <div>
-      <h3>Low Risk Students</h3>
-      <p>{analytics.low_risk_students}</p>
-    </div>
+          <div>
+            <h3>Medium Risk Students</h3>
 
-    <div>
-      <h3>No Data Students</h3>
-      <p>{analytics.no_data_students}</p>
-    </div>
-  </div>
-)}
+            <p>{analytics.medium_risk_students}</p>
+          </div>
+
+          <div>
+            <h3>Low Risk Students</h3>
+
+            <p>{analytics.low_risk_students}</p>
+          </div>
+
+          <div>
+            <h3>No Data Students</h3>
+
+            <p>{analytics.no_data_students}</p>
+          </div>
+        </div>
+      )}
       <hr />
+      {/* ============================== */}
+      {/* RISK MONITORING */}
+      {/* ============================== */}
+      <h2>Risk Monitoring</h2>
+      {riskLoading && <p>Loading risk students...</p>}
+      {riskError && <p>{riskError}</p>}
+      {!riskLoading && !riskError && riskStudents.length === 0 && (
+        <p>No high or medium risk students found.</p>
+      )}
+      {!riskLoading && !riskError && riskStudents.length > 0 && (
+        <div>
+          {riskStudents.map((student) => (
+            <div key={student.student_id}>
+              <h3>{student.name}</h3>
 
+              <p>
+                <strong>Student Code:</strong> {student.student_code}
+              </p>
+
+              <p>
+                <strong>Attendance:</strong> {student.attendance_percentage}%
+              </p>
+
+              <p>
+                <strong>Assignment Completion:</strong>{" "}
+                {student.assignment_completion_rate}%
+              </p>
+
+              <p>
+                <strong>Average Exam Score:</strong>{" "}
+                {student.average_exam_score}
+              </p>
+
+              <p>
+                <strong>Risk Level:</strong> {student.risk_level}
+              </p>
+
+              <hr />
+            </div>
+          ))}
+        </div>
+      )}
+      <hr />
+      {/* ============================== */}
+      {/* CREATE STUDENT */}
+      {/* ============================== */}
       <h2>Create Student</h2>
-
       <form onSubmit={handleCreateStudent}>
-
         <div>
           <label>Student ID</label>
+
           <br />
 
           <input
             type="text"
             placeholder="Example: STU007"
             value={studentId}
-            onChange={(e) =>
-              setStudentId(e.target.value)
-            }
+            onChange={(event) => setStudentId(event.target.value)}
             required
           />
         </div>
@@ -576,15 +632,14 @@ function Dashboard({ onLogout }) {
 
         <div>
           <label>Name</label>
+
           <br />
 
           <input
             type="text"
             placeholder="Enter student name"
             value={name}
-            onChange={(e) =>
-              setName(e.target.value)
-            }
+            onChange={(event) => setName(event.target.value)}
             required
           />
         </div>
@@ -593,15 +648,14 @@ function Dashboard({ onLogout }) {
 
         <div>
           <label>Email</label>
+
           <br />
 
           <input
             type="email"
             placeholder="Enter student email"
             value={email}
-            onChange={(e) =>
-              setEmail(e.target.value)
-            }
+            onChange={(event) => setEmail(event.target.value)}
             required
           />
         </div>
@@ -610,15 +664,14 @@ function Dashboard({ onLogout }) {
 
         <div>
           <label>Department</label>
+
           <br />
 
           <input
             type="text"
             placeholder="Example: Computer Science"
             value={department}
-            onChange={(e) =>
-              setDepartment(e.target.value)
-            }
+            onChange={(event) => setDepartment(event.target.value)}
             required
           />
         </div>
@@ -627,6 +680,7 @@ function Dashboard({ onLogout }) {
 
         <div>
           <label>Year</label>
+
           <br />
 
           <input
@@ -635,9 +689,7 @@ function Dashboard({ onLogout }) {
             max="5"
             placeholder="Example: 3"
             value={year}
-            onChange={(e) =>
-              setYear(e.target.value)
-            }
+            onChange={(event) => setYear(event.target.value)}
             required
           />
         </div>
@@ -646,6 +698,7 @@ function Dashboard({ onLogout }) {
 
         <div>
           <label>Semester</label>
+
           <br />
 
           <input
@@ -654,495 +707,287 @@ function Dashboard({ onLogout }) {
             max="10"
             placeholder="Example: 6"
             value={semester}
-            onChange={(e) =>
-              setSemester(e.target.value)
-            }
+            onChange={(event) => setSemester(event.target.value)}
             required
           />
         </div>
 
         <br />
 
-        <button
-          type="submit"
-          disabled={creating}
-        >
-          {creating
-            ? "Creating..."
-            : "Create Student"}
+        <button type="submit" disabled={creating}>
+          {creating ? "Creating..." : "Create Student"}
         </button>
-
       </form>
-
-      {createMessage && (
-        <p>{createMessage}</p>
-      )}
-
+      {createMessage && <p>{createMessage}</p>}
       <hr />
-
+      {/* ============================== */}
+      {/* SEARCH */}
+      {/* ============================== */}
       <h2>Search Students</h2>
-
       <form onSubmit={handleSearch}>
-
         <input
           type="text"
           placeholder="Search by name"
           value={searchInput}
-          onChange={(e) =>
-            setSearchInput(e.target.value)
-          }
-        />
-
-        {" "}
-
-        <button type="submit">
-          Search
-        </button>
-
-        {" "}
-
-        <button
-          type="button"
-          onClick={handleClearSearch}
-        >
+          onChange={(event) => setSearchInput(event.target.value)}
+        />{" "}
+        <button type="submit">Search</button>{" "}
+        <button type="button" onClick={handleClearSearch}>
           Clear
         </button>
-
       </form>
-
       {search && (
         <p>
-          Showing results for:{" "}
-          <strong>{search}</strong>
+          Showing results for: <strong>{search}</strong>
         </p>
       )}
-
       <br />
-
+      {/* ============================== */}
+      {/* SORT */}
+      {/* ============================== */}
       <h2>Sort Students</h2>
-
-      <label>
-        Sort by:{" "}
-      </label>
-
+      <label>Sort by: </label>
       <select
         value={sortBy}
-        onChange={(e) =>
-          setSortBy(e.target.value)
-        }
+        onChange={(event) => setSortBy(event.target.value)}
       >
-        <option value="id">
-          ID
-        </option>
+        <option value="id">ID</option>
 
-        <option value="student_id">
-          Student ID
-        </option>
+        <option value="student_id">Student ID</option>
 
-        <option value="name">
-          Name
-        </option>
+        <option value="name">Name</option>
 
-        <option value="email">
-          Email
-        </option>
+        <option value="email">Email</option>
 
-        <option value="department">
-          Department
-        </option>
+        <option value="department">Department</option>
 
-        <option value="year">
-          Year
-        </option>
+        <option value="year">Year</option>
 
-        <option value="semester">
-          Semester
-        </option>
-      </select>
+        <option value="semester">Semester</option>
+      </select>{" "}
+      <select value={order} onChange={(event) => setOrder(event.target.value)}>
+        <option value="asc">Ascending</option>
 
-      {" "}
-
-      <select
-        value={order}
-        onChange={(e) =>
-          setOrder(e.target.value)
-        }
-      >
-        <option value="asc">
-          Ascending
-        </option>
-
-        <option value="desc">
-          Descending
-        </option>
-      </select>
-
-      {" "}
-
-      <button onClick={handleSort}>
-        Apply Sort
-      </button>
-
+        <option value="desc">Descending</option>
+      </select>{" "}
+      <button onClick={handleSort}>Apply Sort</button>
       <hr />
-
+      {/* ============================== */}
+      {/* STUDENT DETAILS */}
+      {/* ============================== */}
       {selectedStudent && (
         <div>
-
           <h2>Student Details</h2>
 
           <p>
-            <strong>ID:</strong>{" "}
-            {selectedStudent.id}
+            <strong>ID:</strong> {selectedStudent.id}
           </p>
 
           <p>
-            <strong>Student ID:</strong>{" "}
-            {selectedStudent.student_id}
+            <strong>Student ID:</strong> {selectedStudent.student_id}
           </p>
 
           <p>
-            <strong>Name:</strong>{" "}
-            {selectedStudent.name}
+            <strong>Name:</strong> {selectedStudent.name}
           </p>
 
           <p>
-            <strong>Email:</strong>{" "}
-            {selectedStudent.email}
+            <strong>Email:</strong> {selectedStudent.email}
           </p>
 
           <p>
-            <strong>Department:</strong>{" "}
-            {selectedStudent.department}
+            <strong>Department:</strong> {selectedStudent.department}
           </p>
 
           <p>
-            <strong>Year:</strong>{" "}
-            {selectedStudent.year}
+            <strong>Year:</strong> {selectedStudent.year}
           </p>
 
           <p>
-            <strong>Semester:</strong>{" "}
-            {selectedStudent.semester}
+            <strong>Semester:</strong> {selectedStudent.semester}
           </p>
-
-          <button
-            onClick={handleCloseDetails}
-          >
-            Close Details
-          </button>
 
           <hr />
 
+          <h3>Academic Performance</h3>
+
+          {studentAnalyticsLoading && <p>Loading academic analytics...</p>}
+
+          {studentAnalyticsError && <p>{studentAnalyticsError}</p>}
+
+          {!studentAnalyticsLoading &&
+            !studentAnalyticsError &&
+            studentAnalytics && (
+              <div>
+                <p>
+                  <strong>Attendance:</strong>{" "}
+                  {studentAnalytics.attendance_percentage}%
+                </p>
+
+                <p>
+                  <strong>Assignment Completion:</strong>{" "}
+                  {studentAnalytics.assignment_completion_rate}%
+                </p>
+
+                <p>
+                  <strong>Average Exam Score:</strong>{" "}
+                  {studentAnalytics.average_exam_score}
+                </p>
+
+                <p>
+                  <strong>Risk Level:</strong> {studentAnalytics.risk_level}
+                </p>
+              </div>
+            )}
+
+          <br />
+
+          <button onClick={handleCloseDetails}>Close Details</button>
         </div>
       )}
-
+      <hr />
+      {/* ============================== */}
+      {/* STUDENTS */}
+      {/* ============================== */}
       <h2>Students</h2>
-
-      {loading && (
-        <p>Loading students...</p>
-      )}
-
-      {error && (
-        <p>{error}</p>
-      )}
-
-      {loadingDetails && (
-        <p>
-          Loading student details...
-        </p>
-      )}
-
-      {!loading &&
-        !error &&
-        students.length === 0 && (
-          <p>
-            No students found.
-          </p>
-        )}
-
+      {loading && <p>Loading students...</p>}
+      {error && <p>{error}</p>}
+      {loadingDetails && <p>Loading student details...</p>}
+      {!loading && !error && students.length === 0 && <p>No students found.</p>}
       {!loading &&
         !error &&
         students.map((student) => (
-
           <div key={student.id}>
-
             {editingId === student.id ? (
-
               <div>
-
                 <p>
-                  <strong>ID:</strong>{" "}
-                  {student.id}
+                  <strong></strong> {student.id}
                 </p>
-
-                <label>
-                  Student ID
-                </label>
-
+                <label>Student ID</label>
                 <br />
-
                 <input
                   type="text"
                   value={editStudentId}
-                  onChange={(e) =>
-                    setEditStudentId(
-                      e.target.value
-                    )
-                  }
+                  onChange={(event) => setEditStudentId(event.target.value)}
                 />
-
                 <br />
                 <br />
-
-                <label>
-                  Name
-                </label>
-
+                <label>Name</label>
                 <br />
-
                 <input
                   type="text"
                   value={editName}
-                  onChange={(e) =>
-                    setEditName(
-                      e.target.value
-                    )
-                  }
+                  onChange={(event) => setEditName(event.target.value)}
                 />
-
                 <br />
                 <br />
-
-                <label>
-                  Email
-                </label>
-
+                <label>Email</label>
                 <br />
-
                 <input
                   type="email"
                   value={editEmail}
-                  onChange={(e) =>
-                    setEditEmail(
-                      e.target.value
-                    )
-                  }
+                  onChange={(event) => setEditEmail(event.target.value)}
                 />
-
                 <br />
                 <br />
-
-                <label>
-                  Department
-                </label>
-
+                <label>Department</label>
                 <br />
-
                 <input
                   type="text"
                   value={editDepartment}
-                  onChange={(e) =>
-                    setEditDepartment(
-                      e.target.value
-                    )
-                  }
+                  onChange={(event) => setEditDepartment(event.target.value)}
                 />
-
                 <br />
                 <br />
-
-                <label>
-                  Year
-                </label>
-
+                <label>Year</label>
                 <br />
-
                 <input
                   type="number"
                   min="1"
                   max="5"
                   value={editYear}
-                  onChange={(e) =>
-                    setEditYear(
-                      e.target.value
-                    )
-                  }
+                  onChange={(event) => setEditYear(event.target.value)}
                 />
-
                 <br />
                 <br />
-
-                <label>
-                  Semester
-                </label>
-
+                <label>Semester</label>
                 <br />
-
                 <input
                   type="number"
                   min="1"
                   max="10"
                   value={editSemester}
-                  onChange={(e) =>
-                    setEditSemester(
-                      e.target.value
-                    )
-                  }
+                  onChange={(event) => setEditSemester(event.target.value)}
                 />
-
                 <br />
                 <br />
-
                 <button
-                  onClick={() =>
-                    handleUpdateStudent(
-                      student.id
-                    )
-                  }
+                  onClick={() => handleUpdateStudent(student.id)}
                   disabled={updating}
                 >
-                  {updating
-                    ? "Saving..."
-                    : "Save"}
-                </button>
-
-                {" "}
-
-                <button
-                  onClick={handleCancelEdit}
-                  disabled={updating}
-                >
+                  {updating ? "Saving..." : "Save"}
+                </button>{" "}
+                <button onClick={handleCancelEdit} disabled={updating}>
                   Cancel
                 </button>
-
               </div>
-
             ) : (
-
               <div>
-
                 <p>
-                  <strong>ID:</strong>{" "}
-                  {student.id}
+                  <strong>ID:</strong> {student.id}
                 </p>
-
                 <p>
-                  <strong>Student ID:</strong>{" "}
-                  {student.student_id}
+                  <strong>Student ID:</strong> {student.student_id}
                 </p>
-
                 <p>
-                  <strong>Name:</strong>{" "}
-                  {student.name}
+                  <strong>Name:</strong> {student.name}
                 </p>
-
                 <p>
-                  <strong>Email:</strong>{" "}
-                  {student.email}
+                  <strong>Email:</strong> {student.email}
                 </p>
-
                 <p>
-                  <strong>Department:</strong>{" "}
-                  {student.department}
+                  <strong>Department:</strong> {student.department}
                 </p>
-
                 <p>
-                  <strong>Year:</strong>{" "}
-                  {student.year}
+                  <strong>Year:</strong> {student.year}
                 </p>
-
                 <p>
-                  <strong>Semester:</strong>{" "}
-                  {student.semester}
+                  <strong>Semester:</strong> {student.semester}
                 </p>
-
-                <button
-                  onClick={() =>
-                    handleViewDetails(
-                      student.id
-                    )
-                  }
-                >
+                <button onClick={() => handleViewDetails(student.id)}>
                   View Details
-                </button>
-
-                {" "}
-
+                </button>{" "}
+                <button onClick={() => handleEditStudent(student)}>Edit</button>{" "}
                 <button
-                  onClick={() =>
-                    handleEditStudent(
-                      student
-                    )
-                  }
+                  onClick={() => handleDeleteStudent(student.id)}
+                  disabled={deletingId === student.id}
                 >
-                  Edit
+                  {deletingId === student.id ? "Deleting..." : "Delete"}
                 </button>
-
-                {" "}
-
-                <button
-                  onClick={() =>
-                    handleDeleteStudent(
-                      student.id
-                    )
-                  }
-                  disabled={
-                    deletingId ===
-                    student.id
-                  }
-                >
-                  {deletingId ===
-                  student.id
-                    ? "Deleting..."
-                    : "Delete"}
-                </button>
-
               </div>
-
             )}
 
             <hr />
-
           </div>
-
         ))}
-
-      {!loading &&
-        !error &&
-        total > 0 && (
-
-          <div>
-
-            <p>
-              Page {page} of{" "}
-              {totalPages}
-            </p>
-
-            <button
-              onClick={handlePreviousPage}
-              disabled={page === 1}
-            >
-              Previous
-            </button>
-
-            {" "}
-
-            <button
-              onClick={handleNextPage}
-              disabled={
-                page === totalPages
-              }
-            >
-              Next
-            </button>
-
-          </div>
-
-        )}
-
+      {/* ============================== */}
+      {/* PAGINATION */}
+      {/* ============================== */}
+      {!loading && !error && total > 0 && (
+        <div>
+          <p>
+            Page {page} of {totalPages}
+          </p>
+          <button onClick={handlePreviousPage} disabled={page === 1}>
+            Previous
+          </button>{" "}
+          <button onClick={handleNextPage} disabled={page === totalPages}>
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }
-
 
 export default Dashboard;

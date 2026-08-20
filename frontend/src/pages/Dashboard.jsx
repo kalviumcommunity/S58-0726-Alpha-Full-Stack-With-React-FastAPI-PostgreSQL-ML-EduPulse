@@ -1376,6 +1376,23 @@ function Dashboard({ onLogout }) {
               </section>
             </>
           )}
+
+          {activeSection !== "dashboard" && activeSection !== "students" && (
+            <section className="module-placeholder">
+              <div className="module-placeholder-icon">✦</div>
+
+              <h2>
+                {activeSection.charAt(0).toUpperCase() + activeSection.slice(1)}
+              </h2>
+
+              <p>
+                This module is part of the EduPulse roadmap and will be
+                implemented in a future development phase.
+              </p>
+
+              <span className="module-placeholder-status">Coming soon</span>
+            </section>
+          )}
         </div>
       </main>
     </div>

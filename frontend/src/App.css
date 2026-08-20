@@ -1050,3 +1050,55 @@
     width: 100%;
   }
 }
+
+/* =========================================
+   MODULE PLACEHOLDER
+   ========================================= */
+
+.module-placeholder {
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+
+.module-placeholder-icon {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  border-radius: 14px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-size: 24px;
+}
+
+.module-placeholder h2 {
+  margin: 0 0 8px;
+  color: var(--text-h);
+}
+
+.module-placeholder p {
+  max-width: 520px;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.module-placeholder-status {
+  margin-top: 18px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+}

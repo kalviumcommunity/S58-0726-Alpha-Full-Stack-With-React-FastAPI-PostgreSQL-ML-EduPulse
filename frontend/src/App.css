@@ -790,3 +790,263 @@
     justify-content: flex-end;
   }
 }
+
+/* =========================================
+   SEARCH & SORT TOOLS
+   ========================================= */
+
+.student-tools-section {
+  margin-bottom: 32px;
+}
+
+.dashboard-toolbar {
+  display: flex;
+  align-items: stretch;
+  gap: 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+.toolbar-search,
+.toolbar-sort {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex: 1;
+}
+
+.toolbar-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 150px;
+}
+
+.toolbar-search-field {
+  flex: 1;
+}
+
+.toolbar-field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.toolbar-field input,
+.toolbar-field select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.secondary-button {
+  background: transparent !important;
+  color: var(--text-h) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.secondary-button:hover {
+  background: var(--social-bg) !important;
+}
+
+.toolbar-divider {
+  width: 1px;
+  background: var(--border);
+}
+
+.search-result-message {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+@media (max-width: 900px) {
+  .dashboard-toolbar {
+    flex-direction: column;
+  }
+
+  .toolbar-divider {
+    width: 100%;
+    height: 1px;
+  }
+}
+
+@media (max-width: 650px) {
+  .toolbar-search,
+  .toolbar-sort {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toolbar-field {
+    width: 100%;
+  }
+
+  .toolbar-search button,
+  .toolbar-sort button {
+    width: 100%;
+  }
+}
+
+/* =========================================
+   STUDENTS LIST
+   ========================================= */
+
+.students-list-section {
+  margin-bottom: 32px;
+}
+
+.student-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: var(--shadow);
+}
+
+.student-card + .student-card {
+  margin-top: 14px;
+}
+
+.student-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.student-card-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--text-h);
+}
+
+.student-card-header p {
+  margin-top: 5px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.student-record-id {
+  flex-shrink: 0;
+  padding: 5px 9px;
+  border-radius: 6px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.student-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.student-summary-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.student-summary-grid span {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.student-summary-grid strong {
+  font-size: 14px;
+  color: var(--text-h);
+  overflow-wrap: anywhere;
+}
+
+.student-actions {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.secondary-button {
+  background: transparent !important;
+  color: var(--text-h) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.secondary-button:hover {
+  background: var(--social-bg) !important;
+}
+
+.danger-button {
+  background: #dc2626 !important;
+}
+
+.danger-button:hover {
+  background: #b91c1c !important;
+}
+
+.student-edit-form .form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.student-edit-form .form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.student-edit-form .form-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.student-edit-form input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 28px 0;
+}
+
+.pagination span {
+  min-width: 100px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+@media (max-width: 700px) {
+  .student-card-header {
+    flex-direction: column;
+  }
+
+  .student-summary-grid,
+  .student-edit-form .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .student-actions {
+    flex-direction: column;
+  }
+
+  .student-actions button {
+    width: 100%;
+  }
+}

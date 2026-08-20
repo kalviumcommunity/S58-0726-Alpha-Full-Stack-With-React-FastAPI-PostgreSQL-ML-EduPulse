@@ -505,548 +505,662 @@ function Dashboard({ onLogout }) {
   // ==============================
 
   return (
-    <div className="dashboard">
-      <div className="dashboard-header">
-        <div>
-          <h1>EduPulse Dashboard</h1>
-          <p>University academic performance and risk monitoring.</p>
+    <div className="app-layout">
+      <aside className="sidebar">
+        <div className="sidebar-brand">
+          <div className="sidebar-logo">E</div>
+          <div>
+            <h2>EduPulse</h2>
+            <span>Academic Intelligence</span>
+          </div>
         </div>
 
-        <button onClick={onLogout}>Logout</button>
-      </div>
-      <hr />
-      {/* ============================== */}
-      {/* ACADEMIC ANALYTICS */}
-      {/* ============================== */}
-      <section className="dashboard-section">
-        <div className="dashboard-section-header">
-          <h2>Academic Analytics</h2>
-          <p>Overview of academic performance across all students.</p>
-        </div>
+        <nav className="sidebar-nav">
+          <button className="sidebar-item active">
+            <span>▦</span>
+            Dashboard
+          </button>
 
-        {analyticsLoading && (
-          <p className="status-message">Loading analytics...</p>
-        )}
+          <button className="sidebar-item">
+            <span>◉</span>
+            Students
+          </button>
 
-        {analyticsError && <p className="error-message">{analyticsError}</p>}
+          <button className="sidebar-item">
+            <span>✓</span>
+            Attendance
+          </button>
 
-        {analytics && !analyticsLoading && (
-          <div className="analytics-grid">
-            <div className="analytics-card">
-              <h3>Total Students</h3>
-              <div className="analytics-card-value">
-                {analytics.total_students}
-              </div>
-              <div className="analytics-card-label">Students enrolled</div>
-            </div>
+          <button className="sidebar-item">
+            <span>▤</span>
+            Assignments
+          </button>
 
-            <div className="analytics-card">
-              <h3>Average Attendance</h3>
-              <div className="analytics-card-value">
-                {analytics.average_attendance}%
-              </div>
-              <div className="analytics-card-label">Overall attendance</div>
-            </div>
+          <button className="sidebar-item">
+            <span>▣</span>
+            Exams
+          </button>
 
-            <div className="analytics-card">
-              <h3>Assignment Completion</h3>
-              <div className="analytics-card-value">
-                {analytics.average_assignment_completion}%
-              </div>
-              <div className="analytics-card-label">Average completion</div>
-            </div>
+          <button className="sidebar-item">
+            <span>◫</span>
+            Analytics
+          </button>
 
-            <div className="analytics-card">
-              <h3>Average Exam Score</h3>
-              <div className="analytics-card-value">
-                {analytics.average_exam_score}
-              </div>
-              <div className="analytics-card-label">
-                Overall exam performance
-              </div>
-            </div>
+          <button className="sidebar-item">
+            <span>▥</span>
+            Reports
+          </button>
 
-            <div className="analytics-card">
-              <h3>High Risk Students</h3>
-              <div className="analytics-card-value">
-                {analytics.high_risk_students}
-              </div>
-              <div className="analytics-card-label">
-                Require immediate attention
-              </div>
-            </div>
+          <button className="sidebar-item">
+            <span>✦</span>
+            Recommendations
+          </button>
 
-            <div className="analytics-card">
-              <h3>Medium Risk Students</h3>
-              <div className="analytics-card-value">
-                {analytics.medium_risk_students}
-              </div>
-              <div className="analytics-card-label">Need monitoring</div>
-            </div>
+          <button className="sidebar-item">
+            <span>✉</span>
+            Messages
+          </button>
 
-            <div className="analytics-card">
-              <h3>Low Risk Students</h3>
-              <div className="analytics-card-value">
-                {analytics.low_risk_students}
-              </div>
-              <div className="analytics-card-label">Performing well</div>
-            </div>
+          <button className="sidebar-item">
+            <span>⚙</span>
+            Settings
+          </button>
+        </nav>
 
-            <div className="analytics-card">
-              <h3>No Data Students</h3>
-              <div className="analytics-card-value">
-                {analytics.no_data_students}
-              </div>
-              <div className="analytics-card-label">No academic records</div>
+        <div className="sidebar-footer">
+          <div className="sidebar-user">
+            <div className="user-avatar">F</div>
+            <div>
+              <strong>Faculty</strong>
+              <span>Academic Staff</span>
             </div>
           </div>
-        )}
-      </section>
-      {/* ============================== */}
-      {/* RISK MONITORING */}
-      {/* ============================== */}
-      <section className="dashboard-section">
-        <div className="dashboard-section-header">
-          <h2>Risk Monitoring</h2>
-          <p>Students currently requiring academic attention.</p>
-        </div>
 
-        {riskLoading && (
-          <p className="status-message">Loading risk students...</p>
-        )}
-
-        {riskError && <p className="error-message">{riskError}</p>}
-
-        {!riskLoading && !riskError && riskStudents.length === 0 && (
-          <p className="status-message">
-            No high or medium risk students found.
-          </p>
-        )}
-
-        {!riskLoading && !riskError && riskStudents.length > 0 && (
-          <div className="risk-grid">
-            {riskStudents.map((student) => {
-              const riskClass =
-                student.risk_level === "High"
-                  ? "risk-high"
-                  : student.risk_level === "Medium"
-                    ? "risk-medium"
-                    : "risk-low";
-
-              return (
-                <div
-                  key={student.student_id}
-                  className={`risk-card ${riskClass}`}
-                >
-                  <h3>{student.name}</h3>
-
-                  <p>
-                    <strong>Student Code:</strong> {student.student_code}
-                  </p>
-
-                  <p>
-                    <strong>Attendance:</strong> {student.attendance_percentage}
-                    %
-                  </p>
-
-                  <p>
-                    <strong>Assignment Completion:</strong>{" "}
-                    {student.assignment_completion_rate}%
-                  </p>
-
-                  <p>
-                    <strong>Average Exam Score:</strong>{" "}
-                    {student.average_exam_score}
-                  </p>
-
-                  <p>
-                    <strong>Risk Level:</strong> {student.risk_level}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </section>
-      <hr />
-      <hr />
-      {/* ============================== */}
-      {/* CREATE STUDENT */}
-      {/* ============================== */}
-      <h2>Create Student</h2>
-      <form onSubmit={handleCreateStudent}>
-        <div>
-          <label>Student ID</label>
-
-          <br />
-
-          <input
-            type="text"
-            placeholder="Example: STU007"
-            value={studentId}
-            onChange={(event) => setStudentId(event.target.value)}
-            required
-          />
-        </div>
-
-        <br />
-
-        <div>
-          <label>Name</label>
-
-          <br />
-
-          <input
-            type="text"
-            placeholder="Enter student name"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            required
-          />
-        </div>
-
-        <br />
-
-        <div>
-          <label>Email</label>
-
-          <br />
-
-          <input
-            type="email"
-            placeholder="Enter student email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            required
-          />
-        </div>
-
-        <br />
-
-        <div>
-          <label>Department</label>
-
-          <br />
-
-          <input
-            type="text"
-            placeholder="Example: Computer Science"
-            value={department}
-            onChange={(event) => setDepartment(event.target.value)}
-            required
-          />
-        </div>
-
-        <br />
-
-        <div>
-          <label>Year</label>
-
-          <br />
-
-          <input
-            type="number"
-            min="1"
-            max="5"
-            placeholder="Example: 3"
-            value={year}
-            onChange={(event) => setYear(event.target.value)}
-            required
-          />
-        </div>
-
-        <br />
-
-        <div>
-          <label>Semester</label>
-
-          <br />
-
-          <input
-            type="number"
-            min="1"
-            max="10"
-            placeholder="Example: 6"
-            value={semester}
-            onChange={(event) => setSemester(event.target.value)}
-            required
-          />
-        </div>
-
-        <br />
-
-        <button type="submit" disabled={creating}>
-          {creating ? "Creating..." : "Create Student"}
-        </button>
-      </form>
-      {createMessage && <p>{createMessage}</p>}
-      <hr />
-      {/* ============================== */}
-      {/* SEARCH */}
-      {/* ============================== */}
-      <h2>Search Students</h2>
-      <form onSubmit={handleSearch}>
-        <input
-          type="text"
-          placeholder="Search by name"
-          value={searchInput}
-          onChange={(event) => setSearchInput(event.target.value)}
-        />{" "}
-        <button type="submit">Search</button>{" "}
-        <button type="button" onClick={handleClearSearch}>
-          Clear
-        </button>
-      </form>
-      {search && (
-        <p>
-          Showing results for: <strong>{search}</strong>
-        </p>
-      )}
-      <br />
-      {/* ============================== */}
-      {/* SORT */}
-      {/* ============================== */}
-      <h2>Sort Students</h2>
-      <label>Sort by: </label>
-      <select
-        value={sortBy}
-        onChange={(event) => setSortBy(event.target.value)}
-      >
-        <option value="id">ID</option>
-
-        <option value="student_id">Student ID</option>
-
-        <option value="name">Name</option>
-
-        <option value="email">Email</option>
-
-        <option value="department">Department</option>
-
-        <option value="year">Year</option>
-
-        <option value="semester">Semester</option>
-      </select>{" "}
-      <select value={order} onChange={(event) => setOrder(event.target.value)}>
-        <option value="asc">Ascending</option>
-
-        <option value="desc">Descending</option>
-      </select>{" "}
-      <button onClick={handleSort}>Apply Sort</button>
-      <hr />
-      {/* ============================== */}
-      {/* STUDENT DETAILS */}
-      {/* ============================== */}
-      {selectedStudent && (
-        <div>
-          <h2>Student Details</h2>
-
-          <p>
-            <strong>ID:</strong> {selectedStudent.id}
-          </p>
-
-          <p>
-            <strong>Student ID:</strong> {selectedStudent.student_id}
-          </p>
-
-          <p>
-            <strong>Name:</strong> {selectedStudent.name}
-          </p>
-
-          <p>
-            <strong>Email:</strong> {selectedStudent.email}
-          </p>
-
-          <p>
-            <strong>Department:</strong> {selectedStudent.department}
-          </p>
-
-          <p>
-            <strong>Year:</strong> {selectedStudent.year}
-          </p>
-
-          <p>
-            <strong>Semester:</strong> {selectedStudent.semester}
-          </p>
-
-          <hr />
-
-          <h3>Academic Performance</h3>
-
-          {studentAnalyticsLoading && <p>Loading academic analytics...</p>}
-
-          {studentAnalyticsError && <p>{studentAnalyticsError}</p>}
-
-          {!studentAnalyticsLoading &&
-            !studentAnalyticsError &&
-            studentAnalytics && (
-              <div>
-                <p>
-                  <strong>Attendance:</strong>{" "}
-                  {studentAnalytics.attendance_percentage}%
-                </p>
-
-                <p>
-                  <strong>Assignment Completion:</strong>{" "}
-                  {studentAnalytics.assignment_completion_rate}%
-                </p>
-
-                <p>
-                  <strong>Average Exam Score:</strong>{" "}
-                  {studentAnalytics.average_exam_score}
-                </p>
-
-                <p>
-                  <strong>Risk Level:</strong> {studentAnalytics.risk_level}
-                </p>
-              </div>
-            )}
-
-          <br />
-
-          <button onClick={handleCloseDetails}>Close Details</button>
-        </div>
-      )}
-      <hr />
-      {/* ============================== */}
-      {/* STUDENTS */}
-      {/* ============================== */}
-      <h2>Students</h2>
-      {loading && <p>Loading students...</p>}
-      {error && <p>{error}</p>}
-      {loadingDetails && <p>Loading student details...</p>}
-      {!loading && !error && students.length === 0 && <p>No students found.</p>}
-      {!loading &&
-        !error &&
-        students.map((student) => (
-          <div key={student.id}>
-            {editingId === student.id ? (
-              <div>
-                <p>
-                  <strong></strong> {student.id}
-                </p>
-                <label>Student ID</label>
-                <br />
-                <input
-                  type="text"
-                  value={editStudentId}
-                  onChange={(event) => setEditStudentId(event.target.value)}
-                />
-                <br />
-                <br />
-                <label>Name</label>
-                <br />
-                <input
-                  type="text"
-                  value={editName}
-                  onChange={(event) => setEditName(event.target.value)}
-                />
-                <br />
-                <br />
-                <label>Email</label>
-                <br />
-                <input
-                  type="email"
-                  value={editEmail}
-                  onChange={(event) => setEditEmail(event.target.value)}
-                />
-                <br />
-                <br />
-                <label>Department</label>
-                <br />
-                <input
-                  type="text"
-                  value={editDepartment}
-                  onChange={(event) => setEditDepartment(event.target.value)}
-                />
-                <br />
-                <br />
-                <label>Year</label>
-                <br />
-                <input
-                  type="number"
-                  min="1"
-                  max="5"
-                  value={editYear}
-                  onChange={(event) => setEditYear(event.target.value)}
-                />
-                <br />
-                <br />
-                <label>Semester</label>
-                <br />
-                <input
-                  type="number"
-                  min="1"
-                  max="10"
-                  value={editSemester}
-                  onChange={(event) => setEditSemester(event.target.value)}
-                />
-                <br />
-                <br />
-                <button
-                  onClick={() => handleUpdateStudent(student.id)}
-                  disabled={updating}
-                >
-                  {updating ? "Saving..." : "Save"}
-                </button>{" "}
-                <button onClick={handleCancelEdit} disabled={updating}>
-                  Cancel
-                </button>
-              </div>
-            ) : (
-              <div>
-                <p>
-                  <strong>ID:</strong> {student.id}
-                </p>
-                <p>
-                  <strong>Student ID:</strong> {student.student_id}
-                </p>
-                <p>
-                  <strong>Name:</strong> {student.name}
-                </p>
-                <p>
-                  <strong>Email:</strong> {student.email}
-                </p>
-                <p>
-                  <strong>Department:</strong> {student.department}
-                </p>
-                <p>
-                  <strong>Year:</strong> {student.year}
-                </p>
-                <p>
-                  <strong>Semester:</strong> {student.semester}
-                </p>
-                <button onClick={() => handleViewDetails(student.id)}>
-                  View Details
-                </button>{" "}
-                <button onClick={() => handleEditStudent(student)}>Edit</button>{" "}
-                <button
-                  onClick={() => handleDeleteStudent(student.id)}
-                  disabled={deletingId === student.id}
-                >
-                  {deletingId === student.id ? "Deleting..." : "Delete"}
-                </button>
-              </div>
-            )}
-
-            <hr />
-          </div>
-        ))}
-      {/* ============================== */}
-      {/* PAGINATION */}
-      {/* ============================== */}
-      {!loading && !error && total > 0 && (
-        <div>
-          <p>
-            Page {page} of {totalPages}
-          </p>
-          <button onClick={handlePreviousPage} disabled={page === 1}>
-            Previous
-          </button>{" "}
-          <button onClick={handleNextPage} disabled={page === totalPages}>
-            Next
+          <button className="sidebar-logout" onClick={onLogout}>
+            Logout
           </button>
         </div>
-      )}
+      </aside>
+
+      <main className="main-content">
+        <div className="topbar">
+          <div className="topbar-search">
+            <span>⌕</span>
+            <input
+              type="text"
+              placeholder="Search students, reports..."
+              aria-label="Search"
+            />
+          </div>
+
+          <div className="topbar-actions">
+            <button className="notification-button">🔔</button>
+
+            <div className="topbar-profile">
+              <div className="user-avatar">F</div>
+              <div>
+                <strong>Faculty</strong>
+                <span>Academic Staff</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="dashboard">
+          <div className="dashboard-header">
+            <div>
+              <h1>EduPulse Dashboard</h1>
+              <p>University academic performance and risk monitoring.</p>
+            </div>
+          </div>
+          <hr />
+          {/* ============================== */}
+          {/* ACADEMIC ANALYTICS */}
+          {/* ============================== */}
+          <section className="dashboard-section">
+            <div className="dashboard-section-header">
+              <h2>Academic Analytics</h2>
+              <p>Overview of academic performance across all students.</p>
+            </div>
+
+            {analyticsLoading && (
+              <p className="status-message">Loading analytics...</p>
+            )}
+
+            {analyticsError && (
+              <p className="error-message">{analyticsError}</p>
+            )}
+
+            {analytics && !analyticsLoading && (
+              <div className="analytics-grid">
+                <div className="analytics-card">
+                  <h3>Total Students</h3>
+                  <div className="analytics-card-value">
+                    {analytics.total_students}
+                  </div>
+                  <div className="analytics-card-label">Students enrolled</div>
+                </div>
+
+                <div className="analytics-card">
+                  <h3>Average Attendance</h3>
+                  <div className="analytics-card-value">
+                    {analytics.average_attendance}%
+                  </div>
+                  <div className="analytics-card-label">Overall attendance</div>
+                </div>
+
+                <div className="analytics-card">
+                  <h3>Assignment Completion</h3>
+                  <div className="analytics-card-value">
+                    {analytics.average_assignment_completion}%
+                  </div>
+                  <div className="analytics-card-label">Average completion</div>
+                </div>
+
+                <div className="analytics-card">
+                  <h3>Average Exam Score</h3>
+                  <div className="analytics-card-value">
+                    {analytics.average_exam_score}
+                  </div>
+                  <div className="analytics-card-label">
+                    Overall exam performance
+                  </div>
+                </div>
+
+                <div className="analytics-card">
+                  <h3>High Risk Students</h3>
+                  <div className="analytics-card-value">
+                    {analytics.high_risk_students}
+                  </div>
+                  <div className="analytics-card-label">
+                    Require immediate attention
+                  </div>
+                </div>
+
+                <div className="analytics-card">
+                  <h3>Medium Risk Students</h3>
+                  <div className="analytics-card-value">
+                    {analytics.medium_risk_students}
+                  </div>
+                  <div className="analytics-card-label">Need monitoring</div>
+                </div>
+
+                <div className="analytics-card">
+                  <h3>Low Risk Students</h3>
+                  <div className="analytics-card-value">
+                    {analytics.low_risk_students}
+                  </div>
+                  <div className="analytics-card-label">Performing well</div>
+                </div>
+
+                <div className="analytics-card">
+                  <h3>No Data Students</h3>
+                  <div className="analytics-card-value">
+                    {analytics.no_data_students}
+                  </div>
+                  <div className="analytics-card-label">
+                    No academic records
+                  </div>
+                </div>
+              </div>
+            )}
+          </section>
+          {/* ============================== */}
+          {/* RISK MONITORING */}
+          {/* ============================== */}
+          <section className="dashboard-section">
+            <div className="dashboard-section-header">
+              <h2>Risk Monitoring</h2>
+              <p>Students currently requiring academic attention.</p>
+            </div>
+
+            {riskLoading && (
+              <p className="status-message">Loading risk students...</p>
+            )}
+
+            {riskError && <p className="error-message">{riskError}</p>}
+
+            {!riskLoading && !riskError && riskStudents.length === 0 && (
+              <p className="status-message">
+                No high or medium risk students found.
+              </p>
+            )}
+
+            {!riskLoading && !riskError && riskStudents.length > 0 && (
+              <div className="risk-grid">
+                {riskStudents.map((student) => {
+                  const riskClass =
+                    student.risk_level === "High"
+                      ? "risk-high"
+                      : student.risk_level === "Medium"
+                        ? "risk-medium"
+                        : "risk-low";
+
+                  return (
+                    <div
+                      key={student.student_id}
+                      className={`risk-card ${riskClass}`}
+                    >
+                      <h3>{student.name}</h3>
+
+                      <p>
+                        <strong>Student Code:</strong> {student.student_code}
+                      </p>
+
+                      <p>
+                        <strong>Attendance:</strong>{" "}
+                        {student.attendance_percentage}%
+                      </p>
+
+                      <p>
+                        <strong>Assignment Completion:</strong>{" "}
+                        {student.assignment_completion_rate}%
+                      </p>
+
+                      <p>
+                        <strong>Average Exam Score:</strong>{" "}
+                        {student.average_exam_score}
+                      </p>
+
+                      <p>
+                        <strong>Risk Level:</strong> {student.risk_level}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+          <hr />
+          <hr />
+          {/* ============================== */}
+          {/* CREATE STUDENT */}
+          {/* ============================== */}
+          <h2>Create Student</h2>
+          <form onSubmit={handleCreateStudent}>
+            <div>
+              <label>Student ID</label>
+
+              <br />
+
+              <input
+                type="text"
+                placeholder="Example: STU007"
+                value={studentId}
+                onChange={(event) => setStudentId(event.target.value)}
+                required
+              />
+            </div>
+
+            <br />
+
+            <div>
+              <label>Name</label>
+
+              <br />
+
+              <input
+                type="text"
+                placeholder="Enter student name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                required
+              />
+            </div>
+
+            <br />
+
+            <div>
+              <label>Email</label>
+
+              <br />
+
+              <input
+                type="email"
+                placeholder="Enter student email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+              />
+            </div>
+
+            <br />
+
+            <div>
+              <label>Department</label>
+
+              <br />
+
+              <input
+                type="text"
+                placeholder="Example: Computer Science"
+                value={department}
+                onChange={(event) => setDepartment(event.target.value)}
+                required
+              />
+            </div>
+
+            <br />
+
+            <div>
+              <label>Year</label>
+
+              <br />
+
+              <input
+                type="number"
+                min="1"
+                max="5"
+                placeholder="Example: 3"
+                value={year}
+                onChange={(event) => setYear(event.target.value)}
+                required
+              />
+            </div>
+
+            <br />
+
+            <div>
+              <label>Semester</label>
+
+              <br />
+
+              <input
+                type="number"
+                min="1"
+                max="10"
+                placeholder="Example: 6"
+                value={semester}
+                onChange={(event) => setSemester(event.target.value)}
+                required
+              />
+            </div>
+
+            <br />
+
+            <button type="submit" disabled={creating}>
+              {creating ? "Creating..." : "Create Student"}
+            </button>
+          </form>
+          {createMessage && <p>{createMessage}</p>}
+          <hr />
+          {/* ============================== */}
+          {/* SEARCH */}
+          {/* ============================== */}
+          <h2>Search Students</h2>
+          <form onSubmit={handleSearch}>
+            <input
+              type="text"
+              placeholder="Search by name"
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+            />{" "}
+            <button type="submit">Search</button>{" "}
+            <button type="button" onClick={handleClearSearch}>
+              Clear
+            </button>
+          </form>
+          {search && (
+            <p>
+              Showing results for: <strong>{search}</strong>
+            </p>
+          )}
+          <br />
+          {/* ============================== */}
+          {/* SORT */}
+          {/* ============================== */}
+          <h2>Sort Students</h2>
+          <label>Sort by: </label>
+          <select
+            value={sortBy}
+            onChange={(event) => setSortBy(event.target.value)}
+          >
+            <option value="id">ID</option>
+
+            <option value="student_id">Student ID</option>
+
+            <option value="name">Name</option>
+
+            <option value="email">Email</option>
+
+            <option value="department">Department</option>
+
+            <option value="year">Year</option>
+
+            <option value="semester">Semester</option>
+          </select>{" "}
+          <select
+            value={order}
+            onChange={(event) => setOrder(event.target.value)}
+          >
+            <option value="asc">Ascending</option>
+
+            <option value="desc">Descending</option>
+          </select>{" "}
+          <button onClick={handleSort}>Apply Sort</button>
+          <hr />
+          {/* ============================== */}
+          {/* STUDENT DETAILS */}
+          {/* ============================== */}
+          {selectedStudent && (
+            <div>
+              <h2>Student Details</h2>
+
+              <p>
+                <strong>ID:</strong> {selectedStudent.id}
+              </p>
+
+              <p>
+                <strong>Student ID:</strong> {selectedStudent.student_id}
+              </p>
+
+              <p>
+                <strong>Name:</strong> {selectedStudent.name}
+              </p>
+
+              <p>
+                <strong>Email:</strong> {selectedStudent.email}
+              </p>
+
+              <p>
+                <strong>Department:</strong> {selectedStudent.department}
+              </p>
+
+              <p>
+                <strong>Year:</strong> {selectedStudent.year}
+              </p>
+
+              <p>
+                <strong>Semester:</strong> {selectedStudent.semester}
+              </p>
+
+              <hr />
+
+              <h3>Academic Performance</h3>
+
+              {studentAnalyticsLoading && <p>Loading academic analytics...</p>}
+
+              {studentAnalyticsError && <p>{studentAnalyticsError}</p>}
+
+              {!studentAnalyticsLoading &&
+                !studentAnalyticsError &&
+                studentAnalytics && (
+                  <div>
+                    <p>
+                      <strong>Attendance:</strong>{" "}
+                      {studentAnalytics.attendance_percentage}%
+                    </p>
+
+                    <p>
+                      <strong>Assignment Completion:</strong>{" "}
+                      {studentAnalytics.assignment_completion_rate}%
+                    </p>
+
+                    <p>
+                      <strong>Average Exam Score:</strong>{" "}
+                      {studentAnalytics.average_exam_score}
+                    </p>
+
+                    <p>
+                      <strong>Risk Level:</strong> {studentAnalytics.risk_level}
+                    </p>
+                  </div>
+                )}
+
+              <br />
+
+              <button onClick={handleCloseDetails}>Close Details</button>
+            </div>
+          )}
+          <hr />
+          {/* ============================== */}
+          {/* STUDENTS */}
+          {/* ============================== */}
+          <h2>Students</h2>
+          {loading && <p>Loading students...</p>}
+          {error && <p>{error}</p>}
+          {loadingDetails && <p>Loading student details...</p>}
+          {!loading && !error && students.length === 0 && (
+            <p>No students found.</p>
+          )}
+          {!loading &&
+            !error &&
+            students.map((student) => (
+              <div key={student.id}>
+                {editingId === student.id ? (
+                  <div>
+                    <p>
+                      <strong></strong> {student.id}
+                    </p>
+                    <label>Student ID</label>
+                    <br />
+                    <input
+                      type="text"
+                      value={editStudentId}
+                      onChange={(event) => setEditStudentId(event.target.value)}
+                    />
+                    <br />
+                    <br />
+                    <label>Name</label>
+                    <br />
+                    <input
+                      type="text"
+                      value={editName}
+                      onChange={(event) => setEditName(event.target.value)}
+                    />
+                    <br />
+                    <br />
+                    <label>Email</label>
+                    <br />
+                    <input
+                      type="email"
+                      value={editEmail}
+                      onChange={(event) => setEditEmail(event.target.value)}
+                    />
+                    <br />
+                    <br />
+                    <label>Department</label>
+                    <br />
+                    <input
+                      type="text"
+                      value={editDepartment}
+                      onChange={(event) =>
+                        setEditDepartment(event.target.value)
+                      }
+                    />
+                    <br />
+                    <br />
+                    <label>Year</label>
+                    <br />
+                    <input
+                      type="number"
+                      min="1"
+                      max="5"
+                      value={editYear}
+                      onChange={(event) => setEditYear(event.target.value)}
+                    />
+                    <br />
+                    <br />
+                    <label>Semester</label>
+                    <br />
+                    <input
+                      type="number"
+                      min="1"
+                      max="10"
+                      value={editSemester}
+                      onChange={(event) => setEditSemester(event.target.value)}
+                    />
+                    <br />
+                    <br />
+                    <button
+                      onClick={() => handleUpdateStudent(student.id)}
+                      disabled={updating}
+                    >
+                      {updating ? "Saving..." : "Save"}
+                    </button>{" "}
+                    <button onClick={handleCancelEdit} disabled={updating}>
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    <p>
+                      <strong>ID:</strong> {student.id}
+                    </p>
+                    <p>
+                      <strong>Student ID:</strong> {student.student_id}
+                    </p>
+                    <p>
+                      <strong>Name:</strong> {student.name}
+                    </p>
+                    <p>
+                      <strong>Email:</strong> {student.email}
+                    </p>
+                    <p>
+                      <strong>Department:</strong> {student.department}
+                    </p>
+                    <p>
+                      <strong>Year:</strong> {student.year}
+                    </p>
+                    <p>
+                      <strong>Semester:</strong> {student.semester}
+                    </p>
+                    <button onClick={() => handleViewDetails(student.id)}>
+                      View Details
+                    </button>{" "}
+                    <button onClick={() => handleEditStudent(student)}>
+                      Edit
+                    </button>{" "}
+                    <button
+                      onClick={() => handleDeleteStudent(student.id)}
+                      disabled={deletingId === student.id}
+                    >
+                      {deletingId === student.id ? "Deleting..." : "Delete"}
+                    </button>
+                  </div>
+                )}
+
+                <hr />
+              </div>
+            ))}
+          {/* ============================== */}
+          {/* PAGINATION */}
+          {/* ============================== */}
+          {!loading && !error && total > 0 && (
+            <div>
+              <p>
+                Page {page} of {totalPages}
+              </p>
+              <button onClick={handlePreviousPage} disabled={page === 1}>
+                Previous
+              </button>{" "}
+              <button onClick={handleNextPage} disabled={page === totalPages}>
+                Next
+              </button>
+            </div>
+          )}
+        </div>
+      </main>
     </div>
   );
 }

@@ -1,0 +1,48 @@
+from sqlalchemy import Column, Integer, String, Text, ForeignKey
+from sqlalchemy.orm import relationship
+
+from app.database.base import Base
+
+
+class Intervention(Base):
+    __tablename__ = "interventions"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    student_id = Column(
+        Integer,
+        ForeignKey("students.id"),
+        nullable=False,
+        index=True,
+    )
+
+    factor = Column(
+        String(100),
+        nullable=False,
+    )
+
+    action = Column(
+        String(150),
+        nullable=False,
+    )
+
+    priority = Column(
+        String(20),
+        nullable=False,
+    )
+
+    description = Column(
+        Text,
+        nullable=False,
+    )
+
+    status = Column(
+        String(30),
+        nullable=False,
+        default="Pending",
+    )
+
+    student = relationship(
+        "Student",
+        back_populates="interventions",
+    )

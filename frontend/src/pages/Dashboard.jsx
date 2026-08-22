@@ -15,6 +15,10 @@ import {
   deleteStudent,
 } from "../services/student";
 import { getRecommendations } from "../services/recommendations";
+import {
+  getInterventions,
+  updateInterventionStatus,
+} from "../services/interventions";
 
 function Dashboard({ onLogout }) {
   // ==============================
@@ -56,6 +60,15 @@ function Dashboard({ onLogout }) {
   const [recommendationsError, setRecommendationsError] = useState("");
 
   // ==============================
+  // INTERVENTIONS
+  // ==============================
+
+  const [interventions, setInterventions] = useState([]);
+  const [interventionsLoading, setInterventionsLoading] = useState(true);
+  const [interventionsError, setInterventionsError] = useState("");
+  const [updatingInterventionId, setUpdatingInterventionId] = useState(null);
+
+  // ==============================
   // STUDENT ANALYTICS
   // ==============================
 
@@ -64,6 +77,62 @@ function Dashboard({ onLogout }) {
   const [studentAnalyticsLoading, setStudentAnalyticsLoading] = useState(false);
 
   const [studentAnalyticsError, setStudentAnalyticsError] = useState("");
+
+  // ==============================
+  // LOAD INTERVENTIONS
+  // ==============================
+
+  const loadInterventions = useCallback(async () => {
+    setInterventionsLoading(true);
+
+    try {
+      const data = await getInterventions();
+
+      setInterventions(data);
+      setInterventionsError("");
+    } catch (error) {
+      console.error("Interventions error:", error);
+
+      setInterventionsError(
+        error.response?.data?.detail || "Unable to load interventions",
+      );
+    } finally {
+      setInterventionsLoading(false);
+    }
+  }, []);
+
+  // ==============================
+  // UPDATE INTERVENTION STATUS
+  // ==============================
+
+  const handleInterventionStatusChange = async (interventionId, status) => {
+    setUpdatingInterventionId(interventionId);
+
+    try {
+      const updatedIntervention = await updateInterventionStatus(
+        interventionId,
+        status,
+      );
+
+      setInterventions((current) =>
+        current.map((intervention) =>
+          intervention.id === updatedIntervention.id
+            ? updatedIntervention
+            : intervention,
+        ),
+      );
+
+      setInterventionsError("");
+    } catch (error) {
+      console.error("Intervention status update error:", error);
+
+      setInterventionsError(
+        error.response?.data?.detail || "Unable to update intervention status",
+      );
+    } finally {
+      setUpdatingInterventionId(null);
+    }
+  };
 
   // ==============================
   // SEARCH
@@ -292,6 +361,11 @@ function Dashboard({ onLogout }) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadRecommendations();
   }, [loadRecommendations]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadInterventions();
+  }, [loadInterventions]);
 
   // ==============================
   // SEARCH
@@ -637,6 +711,16 @@ function Dashboard({ onLogout }) {
           >
             <span>✦</span>
             Recommendations
+          </button>
+
+          <button
+            className={`sidebar-item ${
+              activeSection === "interventions" ? "active" : ""
+            }`}
+            onClick={() => setActiveSection("interventions")}
+          >
+            <span>✓</span>
+            Interventions
           </button>
 
           <button
@@ -1556,9 +1640,109 @@ function Dashboard({ onLogout }) {
             </section>
           )}
 
+          {activeSection === "interventions" && (
+            <section className="section-card">
+              <div className="section-header">
+                <div>
+                  <h2>Intervention Tracking</h2>
+                  <p>
+                    Track faculty actions taken to support at-risk students.
+                  </p>
+                </div>
+              </div>
+
+              {interventionsLoading && (
+                <p className="status-message">Loading interventions...</p>
+              )}
+
+              {interventionsError && (
+                <p className="error-message">{interventionsError}</p>
+              )}
+
+              {!interventionsLoading &&
+                !interventionsError &&
+                interventions.length === 0 && (
+                  <p className="status-message">
+                    No interventions have been created yet.
+                  </p>
+                )}
+
+              {!interventionsLoading &&
+                !interventionsError &&
+                interventions.length > 0 && (
+                  <div className="interventions-list">
+                    {interventions.map((intervention) => (
+                      <div key={intervention.id} className="intervention-card">
+                        <div className="intervention-card-header">
+                          <div>
+                            <h3>{intervention.action}</h3>
+
+                            <p>
+                              <strong>{intervention.student_name}</strong> ·{" "}
+                              {intervention.student_code}
+                            </p>
+                          </div>
+
+                          <span
+                            className={`priority-badge priority-${intervention.priority.toLowerCase()}`}
+                          >
+                            {intervention.priority}
+                          </span>
+                        </div>
+
+                        <div className="intervention-details">
+                          <p>
+                            <strong>Risk Factor:</strong> {intervention.factor}
+                          </p>
+
+                          <p>
+                            <strong>Description:</strong>{" "}
+                            {intervention.description}
+                          </p>
+                        </div>
+
+                        <div className="intervention-footer">
+                          <div>
+                            <strong>Status:</strong>{" "}
+                            <span
+                              className={`intervention-status status-${intervention.status
+                                .toLowerCase()
+                                .replace(" ", "-")}`}
+                            >
+                              {intervention.status}
+                            </span>
+                          </div>
+
+                          <select
+                            value={intervention.status}
+                            disabled={
+                              updatingInterventionId === intervention.id
+                            }
+                            onChange={(event) =>
+                              handleInterventionStatusChange(
+                                intervention.id,
+                                event.target.value,
+                              )
+                            }
+                          >
+                            <option value="Pending">Pending</option>
+
+                            <option value="In Progress">In Progress</option>
+
+                            <option value="Completed">Completed</option>
+                          </select>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+            </section>
+          )}
+
           {activeSection !== "dashboard" &&
             activeSection !== "students" &&
-            activeSection !== "recommendations" && (
+            activeSection !== "recommendations" &&
+            activeSection !== "interventions" && (
               <section className="module-placeholder">
                 <div className="module-placeholder-icon">✦</div>
 

@@ -14,6 +14,7 @@ import {
   updateStudent,
   deleteStudent,
 } from "../services/student";
+import { getRecommendations } from "../services/recommendations";
 
 function Dashboard({ onLogout }) {
   // ==============================
@@ -45,6 +46,14 @@ function Dashboard({ onLogout }) {
   const [riskStudents, setRiskStudents] = useState([]);
   const [riskLoading, setRiskLoading] = useState(true);
   const [riskError, setRiskError] = useState("");
+
+  // ==============================
+  // RECOMMENDATIONS
+  // ==============================
+
+  const [recommendations, setRecommendations] = useState([]);
+  const [recommendationsLoading, setRecommendationsLoading] = useState(true);
+  const [recommendationsError, setRecommendationsError] = useState("");
 
   // ==============================
   // STUDENT ANALYTICS
@@ -180,6 +189,29 @@ function Dashboard({ onLogout }) {
   }, []);
 
   // ==============================
+  // LOAD RECOMMENDATIONS
+  // ==============================
+
+  const loadRecommendations = useCallback(async () => {
+    setRecommendationsLoading(true);
+
+    try {
+      const data = await getRecommendations();
+
+      setRecommendations(data);
+      setRecommendationsError("");
+    } catch (error) {
+      console.error("Recommendations error:", error);
+
+      setRecommendationsError(
+        error.response?.data?.detail || "Unable to load recommendations",
+      );
+    } finally {
+      setRecommendationsLoading(false);
+    }
+  }, []);
+
+  // ==============================
   // LOAD STUDENT ANALYTICS
   // ==============================
 
@@ -255,6 +287,11 @@ function Dashboard({ onLogout }) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadRiskStudents();
   }, [loadRiskStudents]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadRecommendations();
+  }, [loadRecommendations]);
 
   // ==============================
   // SEARCH
@@ -1399,22 +1436,145 @@ function Dashboard({ onLogout }) {
             </>
           )}
 
-          {activeSection !== "dashboard" && activeSection !== "students" && (
-            <section className="module-placeholder">
-              <div className="module-placeholder-icon">✦</div>
+          {activeSection === "recommendations" && (
+            <section className="section-card">
+              <div className="section-header">
+                <div>
+                  <h2>Academic Recommendations</h2>
+                  <p>
+                    Recommended interventions based on student risk factors.
+                  </p>
+                </div>
+              </div>
 
-              <h2>
-                {activeSection.charAt(0).toUpperCase() + activeSection.slice(1)}
-              </h2>
+              {recommendationsLoading && (
+                <p className="status-message">Loading recommendations...</p>
+              )}
 
-              <p>
-                This module is part of the EduPulse roadmap and will be
-                implemented in a future development phase.
-              </p>
+              {recommendationsError && (
+                <p className="error-message">{recommendationsError}</p>
+              )}
 
-              <span className="module-placeholder-status">Coming soon</span>
+              {!recommendationsLoading &&
+                !recommendationsError &&
+                recommendations.length === 0 && (
+                  <p className="status-message">
+                    No academic interventions are currently required.
+                  </p>
+                )}
+
+              {!recommendationsLoading &&
+                !recommendationsError &&
+                recommendations.length > 0 && (
+                  <div className="recommendations-list">
+                    {recommendations.map((student) => (
+                      <div
+                        key={student.student_id}
+                        className="recommendation-student-card"
+                      >
+                        <div className="recommendation-student-header">
+                          <div>
+                            <h3>{student.name}</h3>
+                            <p>
+                              <strong>Student Code:</strong>{" "}
+                              {student.student_code}
+                            </p>
+                          </div>
+
+                          <span
+                            className={`risk-badge ${
+                              student.risk_level === "High"
+                                ? "risk-high"
+                                : "risk-medium"
+                            }`}
+                          >
+                            {student.risk_level} Risk
+                          </span>
+                        </div>
+
+                        <div className="recommendation-probabilities">
+                          <strong>ML Risk Probability</strong>
+
+                          <div>
+                            Low:{" "}
+                            {(
+                              (student.ml_risk_probabilities?.Low ?? 0) * 100
+                            ).toFixed(1)}
+                            %
+                          </div>
+
+                          <div>
+                            Medium:{" "}
+                            {(
+                              (student.ml_risk_probabilities?.Medium ?? 0) * 100
+                            ).toFixed(1)}
+                            %
+                          </div>
+
+                          <div>
+                            High:{" "}
+                            {(
+                              (student.ml_risk_probabilities?.High ?? 0) * 100
+                            ).toFixed(1)}
+                            %
+                          </div>
+                        </div>
+
+                        <div className="recommendation-items">
+                          {student.recommendations.map((recommendation) => (
+                            <div
+                              key={`${student.student_id}-${recommendation.factor}`}
+                              className="recommendation-item"
+                            >
+                              <div className="recommendation-item-header">
+                                <h4>{recommendation.action}</h4>
+
+                                <span
+                                  className={`priority-badge priority-${recommendation.priority.toLowerCase()}`}
+                                >
+                                  {recommendation.priority}
+                                </span>
+                              </div>
+
+                              <p>
+                                <strong>Factor:</strong> {recommendation.factor}
+                              </p>
+
+                              <p>
+                                <strong>Current Value:</strong>{" "}
+                                {recommendation.value}
+                              </p>
+
+                              <p>{recommendation.description}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
             </section>
           )}
+
+          {activeSection !== "dashboard" &&
+            activeSection !== "students" &&
+            activeSection !== "recommendations" && (
+              <section className="module-placeholder">
+                <div className="module-placeholder-icon">✦</div>
+
+                <h2>
+                  {activeSection.charAt(0).toUpperCase() +
+                    activeSection.slice(1)}
+                </h2>
+
+                <p>
+                  This module is part of the EduPulse roadmap and will be
+                  implemented in a future development phase.
+                </p>
+
+                <span className="module-placeholder-status">Coming soon</span>
+              </section>
+            )}
         </div>
       </main>
     </div>

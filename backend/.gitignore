@@ -1,2 +1,19 @@
+# Environment files
+.env
+
+# Local databases
 test.db
 *.db
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Virtual environment
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/

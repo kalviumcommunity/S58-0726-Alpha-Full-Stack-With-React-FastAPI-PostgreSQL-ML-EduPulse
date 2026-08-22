@@ -9,3 +9,5 @@ class RiskStudentResponse(BaseModel):
     assignment_completion_rate: float
     average_exam_score: float
     risk_level: str
+    ml_risk_level: str
+    ml_risk_probabilities: dict[str, float]

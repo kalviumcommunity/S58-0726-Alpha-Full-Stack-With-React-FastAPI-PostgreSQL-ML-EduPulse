@@ -47,6 +47,9 @@ def get_risk_students(db: Session):
                 "ml_risk_probabilities": prediction[
                     "risk_probabilities"
                 ],
+                "risk_factors": prediction[
+                    "risk_factors"
+                ],
             }
         )
 

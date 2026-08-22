@@ -4,6 +4,7 @@ import joblib
 import pandas as pd
 
 from app.ml.dataset import FEATURE_COLUMNS
+from app.ml.risk_factors import analyze_risk_factors
 
 
 MODEL_DIR = Path(__file__).resolve().parent / "models"
@@ -47,6 +48,9 @@ def predict_risk(features: dict) -> dict:
 
     The input dictionary must contain the same academic features
     used during model training.
+
+    The response contains both the ML prediction and a separate
+    rule-based explanation of measurable academic risk factors.
     """
 
     model = load_model()
@@ -83,7 +87,14 @@ def predict_risk(features: dict) -> dict:
         )
     }
 
+    risk_level = RISK_LABELS[prediction]
+
+    risk_factors = analyze_risk_factors(
+        feature_values
+    )
+
     return {
-        "risk_level": RISK_LABELS[prediction],
+        "risk_level": risk_level,
         "risk_probabilities": probability_by_label,
+        "risk_factors": risk_factors,
     }

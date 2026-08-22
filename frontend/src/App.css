@@ -1102,3 +1102,74 @@
   font-size: 12px;
   font-weight: 700;
 }
+
+/* ==============================
+   RISK FACTORS
+   ============================== */
+
+.risk-factors {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.risk-factors h4 {
+  margin: 0 0 12px;
+  color: var(--text-h);
+  font-size: 14px;
+}
+
+.risk-factor {
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--accent-bg);
+}
+
+.risk-factor:last-child {
+  margin-bottom: 0;
+}
+
+.risk-factor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.risk-factor-header strong {
+  color: var(--text-h);
+  font-size: 13px;
+}
+
+.risk-factor-header span {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.risk-factor p {
+  margin: 5px 0;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.risk-factor small {
+  color: var(--text);
+  font-size: 11px;
+}
+
+.risk-factor-high {
+  border-left: 3px solid var(--accent);
+}
+
+.risk-factor-medium {
+  border-left: 3px solid var(--accent);
+}
+
+.risk-factor-high .risk-factor-header span,
+.risk-factor-medium .risk-factor-header span {
+  color: var(--accent);
+}

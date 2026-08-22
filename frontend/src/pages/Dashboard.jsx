@@ -834,6 +834,28 @@ function Dashboard({ onLogout }) {
                           <p>
                             <strong>Risk Level:</strong> {student.risk_level}
                           </p>
+
+                          {student.risk_factors?.length > 0 && (
+                            <div className="risk-factors">
+                              <h4>Risk Factors</h4>
+
+                              {student.risk_factors.map((factor, index) => (
+                                <div
+                                  key={`${factor.factor}-${index}`}
+                                  className={`risk-factor risk-factor-${factor.severity.toLowerCase()}`}
+                                >
+                                  <div className="risk-factor-header">
+                                    <strong>{factor.factor}</strong>
+                                    <span>{factor.severity}</span>
+                                  </div>
+
+                                  <p>{factor.message}</p>
+
+                                  <small>Current value: {factor.value}</small>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       );
                     })}

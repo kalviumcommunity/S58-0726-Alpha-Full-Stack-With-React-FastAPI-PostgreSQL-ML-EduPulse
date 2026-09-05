@@ -16,7 +16,6 @@ from app.api.v1 import (
     recommendations,
     interventions
 )
-from app.database.base import Base, engine
 
 
 app = FastAPI()
@@ -36,9 +35,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# Create database tables
-Base.metadata.create_all(bind=engine)
 
 
 # Register routers

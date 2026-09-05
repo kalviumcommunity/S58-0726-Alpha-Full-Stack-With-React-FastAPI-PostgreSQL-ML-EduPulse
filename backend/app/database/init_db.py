@@ -1,5 +1,13 @@
-from app.database.base import Base, engine
-from app.models.student import Student
+"""Database initialization helpers.
+
+Schema changes should be managed through Alembic migrations.
+"""
+
 
 def init_db():
-    Base.metadata.create_all(bind=engine)
+    """Placeholder for application-level database initialization.
+
+    Database schema creation and upgrades are intentionally handled
+    through Alembic migrations rather than SQLAlchemy create_all().
+    """
+    return None

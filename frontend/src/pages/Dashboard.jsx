@@ -1,10 +1,36 @@
 import { useCallback, useEffect, useState } from "react";
+
+import {
+  Users,
+  CalendarCheck,
+  GraduationCap,
+  ClipboardCheck,
+  UsersRound,
+} from "lucide-react";
+
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
+
 import "../App.css";
+import AttendanceTrend from "../components/dashboard/AttendanceTrend";
+
+import MetricCard from "../components/dashboard/MetricCard";
+import RiskDistribution from "../components/dashboard/RiskDistribution";
+import AtRiskStudents from "../components/dashboard/AtRiskStudents";
 
 import {
   getDashboardAnalytics,
   getRiskStudents,
   getStudentAnalytics,
+  getPerformanceTrends,
 } from "../services/analytics";
 
 import {
@@ -26,6 +52,7 @@ function Dashboard({ onLogout }) {
   // ==============================
 
   const [activeSection, setActiveSection] = useState("dashboard");
+  const [showCreateStudent, setShowCreateStudent] = useState(false);
 
   // ==============================
   // STUDENTS
@@ -48,8 +75,6 @@ function Dashboard({ onLogout }) {
   // ==============================
 
   const [riskStudents, setRiskStudents] = useState([]);
-  const [riskLoading, setRiskLoading] = useState(true);
-  const [riskError, setRiskError] = useState("");
 
   // ==============================
   // RECOMMENDATIONS
@@ -77,6 +102,15 @@ function Dashboard({ onLogout }) {
   const [studentAnalyticsLoading, setStudentAnalyticsLoading] = useState(false);
 
   const [studentAnalyticsError, setStudentAnalyticsError] = useState("");
+
+  // ==============================
+  // PERFORMANCE TRENDS
+  // ==============================
+
+  const [performanceTrends, setPerformanceTrends] = useState([]);
+  const [performanceTrendsLoading, setPerformanceTrendsLoading] =
+    useState(false);
+  const [performanceTrendsError, setPerformanceTrendsError] = useState("");
 
   // ==============================
   // LOAD INTERVENTIONS
@@ -202,6 +236,7 @@ function Dashboard({ onLogout }) {
   // ==============================
 
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [showStudentProfile, setShowStudentProfile] = useState(false);
 
   const [loadingDetails, setLoadingDetails] = useState(false);
 
@@ -239,21 +274,12 @@ function Dashboard({ onLogout }) {
   // ==============================
 
   const loadRiskStudents = useCallback(async () => {
-    setRiskLoading(true);
-
     try {
       const data = await getRiskStudents();
-
       setRiskStudents(data);
-      setRiskError("");
     } catch (error) {
       console.error("Risk students error:", error);
-
-      setRiskError(
-        error.response?.data?.detail || "Unable to load risk students",
-      );
-    } finally {
-      setRiskLoading(false);
+      setRiskStudents([]);
     }
   }, []);
 
@@ -304,6 +330,34 @@ function Dashboard({ onLogout }) {
       );
     } finally {
       setStudentAnalyticsLoading(false);
+    }
+  }, []);
+
+  // ==============================
+  // LOAD PERFORMANCE TRENDS
+  // ==============================
+
+  const loadPerformanceTrends = useCallback(async (studentIdValue) => {
+    setPerformanceTrendsLoading(true);
+    setPerformanceTrendsError("");
+    setPerformanceTrends([]);
+
+    try {
+      const data = await getPerformanceTrends(studentIdValue);
+
+      console.log("Performance trends data:", data);
+
+      setPerformanceTrends(data);
+    } catch (error) {
+      console.error("Performance trends error:", error);
+
+      setPerformanceTrends([]);
+
+      setPerformanceTrendsError(
+        error.response?.data?.detail || "Unable to load performance trends",
+      );
+    } finally {
+      setPerformanceTrendsLoading(false);
     }
   }, []);
 
@@ -486,8 +540,12 @@ function Dashboard({ onLogout }) {
       const student = await getStudentById(studentIdValue);
 
       setSelectedStudent(student);
+      setShowStudentProfile(true);
 
-      await loadStudentAnalytics(studentIdValue);
+      await Promise.all([
+        loadStudentAnalytics(studentIdValue),
+        loadPerformanceTrends(studentIdValue),
+      ]);
     } catch (error) {
       console.error("Student details error:", error);
 
@@ -502,6 +560,7 @@ function Dashboard({ onLogout }) {
   // ==============================
 
   const handleCloseDetails = () => {
+    setShowStudentProfile(false);
     setSelectedStudent(null);
     setStudentAnalytics(null);
     setStudentAnalyticsError("");
@@ -792,295 +851,607 @@ function Dashboard({ onLogout }) {
           </div>
           <hr />
           {activeSection === "dashboard" && (
-            <>
-              {/* ============================== */}
-              {/* ACADEMIC ANALYTICS */}
-              {/* ============================== */}
-              <section className="dashboard-section">
-                <div className="dashboard-section-header">
-                  <h2>Academic Analytics</h2>
-                  <p>Overview of academic performance across all students.</p>
+            <section className="edupulse-dashboard-home">
+              {analyticsLoading && (
+                <div className="dashboard-state-card">
+                  <div className="dashboard-state-spinner" />
+                  <div>
+                    <strong>Loading academic analytics</strong>
+                    <span>Preparing your faculty overview...</span>
+                  </div>
                 </div>
+              )}
 
-                {analyticsLoading && (
-                  <p className="status-message">Loading analytics...</p>
-                )}
+              {analyticsError && (
+                <div className="dashboard-alert dashboard-alert-error">
+                  {analyticsError}
+                </div>
+              )}
 
-                {analyticsError && (
-                  <p className="error-message">{analyticsError}</p>
-                )}
+              {analytics && !analyticsLoading && (
+                <>
+                  <div className="faculty-page-heading">
+                    <div>
+                      <span className="faculty-kicker">ACADEMIC OVERVIEW</span>
 
-                {analytics && !analyticsLoading && (
-                  <div className="analytics-grid">
-                    <div className="analytics-card">
-                      <h3>Total Students</h3>
-                      <div className="analytics-card-value">
-                        {analytics.total_students}
-                      </div>
-                      <div className="analytics-card-label">
-                        Students enrolled
-                      </div>
+                      <h2>Faculty Dashboard</h2>
+
+                      <p>
+                        Welcome back, Faculty. Here&apos;s what&apos;s happening
+                        with your students.
+                      </p>
                     </div>
 
-                    <div className="analytics-card">
-                      <h3>Average Attendance</h3>
-                      <div className="analytics-card-value">
-                        {analytics.average_attendance}%
-                      </div>
-                      <div className="analytics-card-label">
-                        Overall attendance
-                      </div>
-                    </div>
+                    <div className="faculty-heading-actions">
+                      <button className="faculty-select" type="button">
+                        <span>B.Tech - Computer Science</span>
+                      </button>
 
-                    <div className="analytics-card">
-                      <h3>Assignment Completion</h3>
-                      <div className="analytics-card-value">
-                        {analytics.average_assignment_completion}%
-                      </div>
-                      <div className="analytics-card-label">
-                        Average completion
-                      </div>
-                    </div>
-
-                    <div className="analytics-card">
-                      <h3>Average Exam Score</h3>
-                      <div className="analytics-card-value">
-                        {analytics.average_exam_score}
-                      </div>
-                      <div className="analytics-card-label">
-                        Overall exam performance
-                      </div>
-                    </div>
-
-                    <div className="analytics-card">
-                      <h3>High Risk Students</h3>
-                      <div className="analytics-card-value">
-                        {analytics.high_risk_students}
-                      </div>
-                      <div className="analytics-card-label">
-                        Require immediate attention
-                      </div>
-                    </div>
-
-                    <div className="analytics-card">
-                      <h3>Medium Risk Students</h3>
-                      <div className="analytics-card-value">
-                        {analytics.medium_risk_students}
-                      </div>
-                      <div className="analytics-card-label">
-                        Need monitoring
-                      </div>
-                    </div>
-
-                    <div className="analytics-card">
-                      <h3>Low Risk Students</h3>
-                      <div className="analytics-card-value">
-                        {analytics.low_risk_students}
-                      </div>
-                      <div className="analytics-card-label">
-                        Performing well
-                      </div>
-                    </div>
-
-                    <div className="analytics-card">
-                      <h3>No Data Students</h3>
-                      <div className="analytics-card-value">
-                        {analytics.no_data_students}
-                      </div>
-                      <div className="analytics-card-label">
-                        No academic records
-                      </div>
+                      <button
+                        className="faculty-primary-button"
+                        type="button"
+                        onClick={() => setActiveSection("students")}
+                      >
+                        <UsersRound size={16} />
+                        Manage Students
+                      </button>
                     </div>
                   </div>
-                )}
-              </section>
-              {/* ============================== */}
-              {/* RISK MONITORING */}
-              {/* ============================== */}
-              <section className="dashboard-section">
-                <div className="dashboard-section-header">
-                  <h2>Risk Monitoring</h2>
-                  <p>Students currently requiring academic attention.</p>
-                </div>
 
-                {riskLoading && (
-                  <p className="status-message">Loading risk students...</p>
-                )}
+                  <div className="faculty-kpi-grid">
+                    <MetricCard
+                      title="Total Students"
+                      value={analytics.total_students ?? 0}
+                      subtitle="Currently enrolled"
+                      icon={Users}
+                      variant="purple"
+                    />
 
-                {riskError && <p className="error-message">{riskError}</p>}
+                    <MetricCard
+                      title="At Risk Students"
+                      value={
+                        (analytics.high_risk_students ?? 0) +
+                        (analytics.medium_risk_students ?? 0)
+                      }
+                      subtitle={
+                        `${analytics.high_risk_students ?? 0} high · ` +
+                        `${analytics.medium_risk_students ?? 0} medium`
+                      }
+                      icon={UsersRound}
+                      variant="red"
+                    />
 
-                {!riskLoading && !riskError && riskStudents.length === 0 && (
-                  <p className="status-message">
-                    No high or medium risk students found.
-                  </p>
-                )}
+                    <MetricCard
+                      title="Average Attendance"
+                      value={`${analytics.average_attendance ?? 0}%`}
+                      subtitle="Overall attendance"
+                      icon={CalendarCheck}
+                      variant="blue"
+                    />
 
-                {!riskLoading && !riskError && riskStudents.length > 0 && (
-                  <div className="risk-grid">
-                    {riskStudents.map((student) => {
-                      const riskClass =
-                        student.risk_level === "High"
-                          ? "risk-high"
-                          : student.risk_level === "Medium"
-                            ? "risk-medium"
-                            : "risk-low";
+                    <MetricCard
+                      title="Assignments Submitted"
+                      value={`${analytics.average_assignment_completion ?? 0}%`}
+                      subtitle="Average completion"
+                      icon={ClipboardCheck}
+                      variant="green"
+                    />
+                  </div>
 
-                      return (
-                        <div
-                          key={student.student_id}
-                          className={`risk-card ${riskClass}`}
-                        >
-                          <h3>{student.name}</h3>
+                  <div className="faculty-analytics-grid">
+                    <RiskDistribution analytics={analytics} />
 
-                          <p>
-                            <strong>Student Code:</strong>{" "}
-                            {student.student_code}
-                          </p>
+                    <AttendanceTrend
+                      students={students}
+                      averageAttendance={analytics.average_attendance ?? 0}
+                    />
 
-                          <p>
-                            <strong>Attendance:</strong>{" "}
-                            {student.attendance_percentage}%
-                          </p>
+                    <AtRiskStudents
+                      students={riskStudents}
+                      onViewAll={() => setActiveSection("students")}
+                    />
+                  </div>
 
-                          <p>
-                            <strong>Assignment Completion:</strong>{" "}
-                            {student.assignment_completion_rate}%
-                          </p>
+                  <section className="engagement-card">
+                    <div className="engagement-header">
+                      <div>
+                        <h3>Engagement Overview</h3>
 
-                          <p>
-                            <strong>Average Exam Score:</strong>{" "}
-                            {student.average_exam_score}
-                          </p>
+                        <p>Key academic indicators across your students.</p>
+                      </div>
+                    </div>
 
-                          <p>
-                            <strong>Risk Level:</strong> {student.risk_level}
-                          </p>
-
-                          {student.risk_factors?.length > 0 && (
-                            <div className="risk-factors">
-                              <h4>Risk Factors</h4>
-
-                              {student.risk_factors.map((factor, index) => (
-                                <div
-                                  key={`${factor.factor}-${index}`}
-                                  className={`risk-factor risk-factor-${factor.severity.toLowerCase()}`}
-                                >
-                                  <div className="risk-factor-header">
-                                    <strong>{factor.factor}</strong>
-                                    <span>{factor.severity}</span>
-                                  </div>
-
-                                  <p>{factor.message}</p>
-
-                                  <small>Current value: {factor.value}</small>
-                                </div>
-                              ))}
-                            </div>
-                          )}
+                    <div className="engagement-grid">
+                      <div className="engagement-metric">
+                        <div className="engagement-metric-top">
+                          <span>Attendance</span>
+                          <CalendarCheck size={16} />
                         </div>
-                      );
-                    })}
+
+                        <strong>{analytics.average_attendance ?? 0}%</strong>
+
+                        <div className="engagement-track">
+                          <span
+                            style={{
+                              width: `${Math.min(
+                                Math.max(
+                                  Number(analytics.average_attendance ?? 0),
+                                  0,
+                                ),
+                                100,
+                              )}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="engagement-metric">
+                        <div className="engagement-metric-top">
+                          <span>Assignments</span>
+                          <ClipboardCheck size={16} />
+                        </div>
+
+                        <strong>
+                          {analytics.average_assignment_completion ?? 0}%
+                        </strong>
+
+                        <div className="engagement-track">
+                          <span
+                            style={{
+                              width: `${Math.min(
+                                Math.max(
+                                  Number(
+                                    analytics.average_assignment_completion ??
+                                      0,
+                                  ),
+                                  0,
+                                ),
+                                100,
+                              )}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="engagement-metric">
+                        <div className="engagement-metric-top">
+                          <span>Exam Performance</span>
+                          <GraduationCap size={16} />
+                        </div>
+
+                        <strong>{analytics.average_exam_score ?? 0}</strong>
+
+                        <div className="engagement-track">
+                          <span
+                            style={{
+                              width: `${Math.min(
+                                Math.max(
+                                  Number(analytics.average_exam_score ?? 0),
+                                  0,
+                                ),
+                                100,
+                              )}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="engagement-metric">
+                        <div className="engagement-metric-top">
+                          <span>Students With Data</span>
+                          <Users size={16} />
+                        </div>
+
+                        <strong>
+                          {(analytics.total_students ?? 0) -
+                            (analytics.no_data_students ?? 0)}
+                        </strong>
+
+                        <small>
+                          of {analytics.total_students ?? 0} students
+                        </small>
+                      </div>
+
+                      <div className="engagement-score-card">
+                        <div>
+                          <span>Academic Risk</span>
+
+                          <strong>
+                            {(analytics.high_risk_students ?? 0) +
+                              (analytics.medium_risk_students ?? 0)}
+                          </strong>
+                        </div>
+
+                        <div className="engagement-risk-breakdown">
+                          <span>
+                            <i className="risk-dot-high" />
+                            High {analytics.high_risk_students ?? 0}
+                          </span>
+
+                          <span>
+                            <i className="risk-dot-medium" />
+                            Medium {analytics.medium_risk_students ?? 0}
+                          </span>
+
+                          <span>
+                            <i className="risk-dot-low" />
+                            Low {analytics.low_risk_students ?? 0}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </>
+              )}
+
+              {!analyticsLoading && !analyticsError && !analytics && (
+                <div className="dashboard-state-card">
+                  <div>
+                    <strong>Dashboard analytics unavailable</strong>
+
+                    <span>
+                      The analytics service did not return dashboard data.
+                    </span>
                   </div>
-                )}
-              </section>
-            </>
+                </div>
+              )}
+            </section>
           )}
 
-          {activeSection === "students" && (
+          {activeSection === "students" && showStudentProfile && (
+            <section className="student-profile-page">
+              <div className="student-profile-topbar">
+                <button
+                  className="secondary-button"
+                  onClick={handleCloseDetails}
+                >
+                  ← Back to Students
+                </button>
+
+                <span className="student-profile-breadcrumb">
+                  Students / Student Profile
+                </span>
+              </div>
+
+              {loadingDetails && (
+                <p className="status-message">Loading student profile...</p>
+              )}
+
+              {selectedStudent && (
+                <>
+                  <section className="student-profile-hero">
+                    <div className="student-profile-avatar">
+                      {selectedStudent.name?.charAt(0)?.toUpperCase()}
+                    </div>
+
+                    <div className="student-profile-main">
+                      <div>
+                        <p className="student-profile-eyebrow">
+                          STUDENT PROFILE
+                        </p>
+
+                        <h1>{selectedStudent.name}</h1>
+
+                        <p className="student-profile-meta">
+                          {selectedStudent.student_id} ·{" "}
+                          {selectedStudent.department}
+                        </p>
+                      </div>
+
+                      <span className="student-profile-id">
+                        ID #{selectedStudent.id}
+                      </span>
+                    </div>
+                  </section>
+
+                  <div className="student-profile-content">
+                    <section className="student-profile-section">
+                      <div className="dashboard-section-header">
+                        <h2>Student Information</h2>
+                        <p>Academic and contact information.</p>
+                      </div>
+
+                      <div className="student-profile-info-grid">
+                        <div className="profile-info-item">
+                          <span>Email</span>
+                          <strong>{selectedStudent.email}</strong>
+                        </div>
+
+                        <div className="profile-info-item">
+                          <span>Department</span>
+                          <strong>{selectedStudent.department}</strong>
+                        </div>
+
+                        <div className="profile-info-item">
+                          <span>Year</span>
+                          <strong>Year {selectedStudent.year}</strong>
+                        </div>
+
+                        <div className="profile-info-item">
+                          <span>Semester</span>
+                          <strong>Semester {selectedStudent.semester}</strong>
+                        </div>
+                      </div>
+                    </section>
+
+                    <section className="student-profile-section">
+                      <div className="dashboard-section-header">
+                        <h2>Academic Performance</h2>
+                        <p>Current engagement and performance indicators.</p>
+                      </div>
+
+                      {studentAnalyticsLoading && (
+                        <p className="status-message">
+                          Loading academic analytics...
+                        </p>
+                      )}
+
+                      {studentAnalyticsError && (
+                        <p className="error-message">{studentAnalyticsError}</p>
+                      )}
+
+                      {!studentAnalyticsLoading &&
+                        !studentAnalyticsError &&
+                        studentAnalytics && (
+                          <div className="student-profile-metrics">
+                            <div className="profile-metric-card">
+                              <span>Attendance</span>
+                              <strong>
+                                {studentAnalytics.attendance_percentage}%
+                              </strong>
+                              <small>Overall attendance rate</small>
+                            </div>
+
+                            <div className="profile-metric-card">
+                              <span>Assignments</span>
+                              <strong>
+                                {studentAnalytics.assignment_completion_rate}%
+                              </strong>
+                              <small>Assignment completion rate</small>
+                            </div>
+
+                            <div className="profile-metric-card">
+                              <span>Exam Score</span>
+                              <strong>
+                                {studentAnalytics.average_exam_score}
+                              </strong>
+                              <small>Average examination score</small>
+                            </div>
+
+                            <div className="profile-metric-card">
+                              <span>Risk Level</span>
+                              <strong className="profile-risk-value">
+                                {studentAnalytics.risk_level}
+                              </strong>
+                              <small>Current academic risk status</small>
+                            </div>
+                          </div>
+                        )}
+
+                      {/* ============================== */}
+                      {/* PERFORMANCE TRENDS */}
+                      {/* ============================== */}
+
+                      <div className="student-performance-trends">
+                        <div className="dashboard-section-header">
+                          <h2>Performance Trends</h2>
+                          <p>
+                            Historical academic performance across recorded
+                            assessments.
+                          </p>
+                        </div>
+
+                        {performanceTrendsLoading && (
+                          <p className="status-message">
+                            Loading performance trends...
+                          </p>
+                        )}
+
+                        {performanceTrendsError && (
+                          <p className="error-message">
+                            {performanceTrendsError}
+                          </p>
+                        )}
+
+                        {!performanceTrendsLoading &&
+                          !performanceTrendsError &&
+                          performanceTrends.length === 0 && (
+                            <p className="status-message">
+                              No performance trend data available.
+                            </p>
+                          )}
+
+                        {!performanceTrendsLoading &&
+                          !performanceTrendsError &&
+                          performanceTrends.length > 0 && (
+                            <div className="performance-chart-container">
+                              <ResponsiveContainer width="100%" height={320}>
+                                <LineChart
+                                  data={performanceTrends}
+                                  margin={{
+                                    top: 10,
+                                    right: 20,
+                                    left: -10,
+                                    bottom: 10,
+                                  }}
+                                >
+                                  <CartesianGrid
+                                    strokeDasharray="3 3"
+                                    vertical={false}
+                                  />
+
+                                  <XAxis
+                                    dataKey="date"
+                                    tick={{ fontSize: 12 }}
+                                    tickFormatter={(value) =>
+                                      new Date(value).toLocaleDateString(
+                                        "en-IN",
+                                        {
+                                          day: "numeric",
+                                          month: "short",
+                                        },
+                                      )
+                                    }
+                                  />
+
+                                  <YAxis
+                                    domain={[0, 100]}
+                                    tick={{ fontSize: 12 }}
+                                  />
+
+                                  <Tooltip
+                                    labelFormatter={(value) =>
+                                      new Date(value).toLocaleDateString(
+                                        "en-IN",
+                                        {
+                                          day: "numeric",
+                                          month: "short",
+                                          year: "numeric",
+                                        },
+                                      )
+                                    }
+                                    formatter={(value, name, item) => [
+                                      `${value}%`,
+                                      item.payload.subject
+                                        ? `${item.payload.subject} Score`
+                                        : "Score",
+                                    ]}
+                                  />
+
+                                  <Legend />
+
+                                  <Line
+                                    type="monotone"
+                                    dataKey="score"
+                                    name="Performance Score"
+                                    strokeWidth={3}
+                                    dot={{ r: 4 }}
+                                    activeDot={{ r: 6 }}
+                                  />
+                                </LineChart>
+                              </ResponsiveContainer>
+                            </div>
+                          )}
+                      </div>
+                    </section>
+                  </div>
+                </>
+              )}
+            </section>
+          )}
+
+          {activeSection === "students" && !showStudentProfile && (
             <>
-              {/* ============================== */}
-              {/* CREATE STUDENT */}
-              {/* ============================== */}
-              <section className="student-form-section">
-                <div className="dashboard-section-header">
-                  <h2>Create Student</h2>
-                  <p>Add a new student to the academic system.</p>
+              <section className="students-page-header">
+                <div>
+                  <h2>Students</h2>
+                  <p>Manage and monitor student academic profiles.</p>
                 </div>
 
-                <form className="student-form" onSubmit={handleCreateStudent}>
-                  <div className="form-grid">
-                    <div className="form-field">
-                      <label>Student ID</label>
-                      <input
-                        type="text"
-                        placeholder="Example: STU007"
-                        value={studentId}
-                        onChange={(event) => setStudentId(event.target.value)}
-                        required
-                      />
-                    </div>
-
-                    <div className="form-field">
-                      <label>Name</label>
-                      <input
-                        type="text"
-                        placeholder="Enter student name"
-                        value={name}
-                        onChange={(event) => setName(event.target.value)}
-                        required
-                      />
-                    </div>
-
-                    <div className="form-field">
-                      <label>Email</label>
-                      <input
-                        type="email"
-                        placeholder="Enter student email"
-                        value={email}
-                        onChange={(event) => setEmail(event.target.value)}
-                        required
-                      />
-                    </div>
-
-                    <div className="form-field">
-                      <label>Department</label>
-                      <input
-                        type="text"
-                        placeholder="Example: Computer Science"
-                        value={department}
-                        onChange={(event) => setDepartment(event.target.value)}
-                        required
-                      />
-                    </div>
-
-                    <div className="form-field">
-                      <label>Year</label>
-                      <input
-                        type="number"
-                        min="1"
-                        max="5"
-                        placeholder="Example: 3"
-                        value={year}
-                        onChange={(event) => setYear(event.target.value)}
-                        required
-                      />
-                    </div>
-
-                    <div className="form-field">
-                      <label>Semester</label>
-                      <input
-                        type="number"
-                        min="1"
-                        max="10"
-                        placeholder="Example: 6"
-                        value={semester}
-                        onChange={(event) => setSemester(event.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="student-form-actions">
-                    <button type="submit" disabled={creating}>
-                      {creating ? "Creating..." : "Create Student"}
-                    </button>
-                  </div>
-
-                  {createMessage && (
-                    <p className="status-message">{createMessage}</p>
-                  )}
-                </form>
+                <button
+                  type="button"
+                  className="add-student-button"
+                  onClick={() => setShowCreateStudent((previous) => !previous)}
+                >
+                  {showCreateStudent ? "Close Form" : "+ Add Student"}
+                </button>
               </section>
+
+              {showCreateStudent && (
+                <section className="student-form-section">
+                  <div className="dashboard-section-header">
+                    <h2>Create Student</h2>
+                    <p>Add a new student to the academic system.</p>
+                  </div>
+
+                  <form className="student-form" onSubmit={handleCreateStudent}>
+                    <div className="form-grid">
+                      <div className="form-field">
+                        <label>Student ID</label>
+                        <input
+                          type="text"
+                          placeholder="Example: STU007"
+                          value={studentId}
+                          onChange={(event) => setStudentId(event.target.value)}
+                          required
+                        />
+                      </div>
+
+                      <div className="form-field">
+                        <label>Name</label>
+                        <input
+                          type="text"
+                          placeholder="Enter student name"
+                          value={name}
+                          onChange={(event) => setName(event.target.value)}
+                          required
+                        />
+                      </div>
+
+                      <div className="form-field">
+                        <label>Email</label>
+                        <input
+                          type="email"
+                          placeholder="Enter student email"
+                          value={email}
+                          onChange={(event) => setEmail(event.target.value)}
+                          required
+                        />
+                      </div>
+
+                      <div className="form-field">
+                        <label>Department</label>
+                        <input
+                          type="text"
+                          placeholder="Example: Computer Science"
+                          value={department}
+                          onChange={(event) =>
+                            setDepartment(event.target.value)
+                          }
+                          required
+                        />
+                      </div>
+
+                      <div className="form-field">
+                        <label>Year</label>
+                        <input
+                          type="number"
+                          min="1"
+                          max="5"
+                          placeholder="Example: 3"
+                          value={year}
+                          onChange={(event) => setYear(event.target.value)}
+                          required
+                        />
+                      </div>
+
+                      <div className="form-field">
+                        <label>Semester</label>
+                        <input
+                          type="number"
+                          min="1"
+                          max="10"
+                          placeholder="Example: 6"
+                          value={semester}
+                          onChange={(event) => setSemester(event.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="student-form-actions">
+                      <button type="submit" disabled={creating}>
+                        {creating ? "Creating..." : "Create Student"}
+                      </button>
+                    </div>
+
+                    {createMessage && (
+                      <p className="status-message">{createMessage}</p>
+                    )}
+                  </form>
+                </section>
+              )}
+
               <hr />
               {/* ============================== */}
               {/* SEARCH & SORT */}
@@ -1290,6 +1661,85 @@ function Dashboard({ onLogout }) {
                         </div>
                       )}
 
+                    {/* ============================== */}
+                    {/* PERFORMANCE TRENDS */}
+                    {/* ============================== */}
+
+                    <div className="student-performance-trends">
+                      <div className="dashboard-section-header">
+                        <h3>Performance Trends</h3>
+                        <p>
+                          Historical academic performance across recorded
+                          assessments.
+                        </p>
+                      </div>
+
+                      {performanceTrendsLoading && (
+                        <p className="status-message">
+                          Loading performance trends...
+                        </p>
+                      )}
+
+                      {performanceTrendsError && (
+                        <p className="error-message">
+                          {performanceTrendsError}
+                        </p>
+                      )}
+
+                      {!performanceTrendsLoading &&
+                        !performanceTrendsError &&
+                        performanceTrends.length === 0 && (
+                          <p className="status-message">
+                            No performance trend data available.
+                          </p>
+                        )}
+
+                      {!performanceTrendsLoading &&
+                        !performanceTrendsError &&
+                        performanceTrends.length > 0 && (
+                          <div className="performance-chart-container">
+                            <ResponsiveContainer width="100%" height={320}>
+                              <LineChart
+                                data={performanceTrends}
+                                margin={{
+                                  top: 10,
+                                  right: 20,
+                                  left: -10,
+                                  bottom: 10,
+                                }}
+                              >
+                                <CartesianGrid
+                                  strokeDasharray="3 3"
+                                  vertical={false}
+                                />
+
+                                <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+
+                                <YAxis
+                                  domain={[0, 100]}
+                                  tick={{ fontSize: 12 }}
+                                />
+
+                                <Tooltip
+                                  formatter={(value) => [`${value}%`, "Score"]}
+                                />
+
+                                <Legend />
+
+                                <Line
+                                  type="monotone"
+                                  dataKey="score"
+                                  name="Performance Score"
+                                  strokeWidth={3}
+                                  dot={{ r: 4 }}
+                                  activeDot={{ r: 6 }}
+                                />
+                              </LineChart>
+                            </ResponsiveContainer>
+                          </div>
+                        )}
+                    </div>
+
                     <div className="student-details-actions">
                       <button onClick={handleCloseDetails}>
                         Close Details
@@ -1437,59 +1887,63 @@ function Dashboard({ onLogout }) {
                           </div>
                         ) : (
                           <>
-                            <div className="student-card-header">
-                              <div>
-                                <h3>{student.name}</h3>
-                                <p>
-                                  {student.student_id} · {student.department}
-                                </p>
+                            <div className="student-row">
+                              <div className="student-profile">
+                                <div className="student-avatar">
+                                  {student.name?.charAt(0)?.toUpperCase() ||
+                                    "S"}
+                                </div>
+
+                                <div className="student-primary-info">
+                                  <h3>{student.name}</h3>
+                                  <p>{student.student_id}</p>
+                                </div>
                               </div>
 
-                              <span className="student-record-id">
-                                ID #{student.id}
-                              </span>
-                            </div>
+                              <div className="student-academic-info">
+                                <div>
+                                  <span>Department</span>
+                                  <strong>{student.department}</strong>
+                                </div>
 
-                            <div className="student-summary-grid">
-                              <div>
-                                <span>Email</span>
-                                <strong>{student.email}</strong>
+                                <div>
+                                  <span>Year</span>
+                                  <strong>Year {student.year}</strong>
+                                </div>
+
+                                <div>
+                                  <span>Semester</span>
+                                  <strong>Semester {student.semester}</strong>
+                                </div>
                               </div>
 
-                              <div>
-                                <span>Year</span>
-                                <strong>{student.year}</strong>
+                              <div className="student-row-actions">
+                                <button
+                                  className="view-student-button"
+                                  onClick={() => handleViewDetails(student.id)}
+                                >
+                                  View Profile
+                                </button>
+
+                                <button
+                                  className="icon-action-button"
+                                  onClick={() => handleEditStudent(student)}
+                                  title="Edit student"
+                                >
+                                  Edit
+                                </button>
+
+                                <button
+                                  className="icon-action-button delete-action"
+                                  onClick={() =>
+                                    handleDeleteStudent(student.id)
+                                  }
+                                  disabled={deletingId === student.id}
+                                  title="Delete student"
+                                >
+                                  {deletingId === student.id ? "..." : "Delete"}
+                                </button>
                               </div>
-
-                              <div>
-                                <span>Semester</span>
-                                <strong>{student.semester}</strong>
-                              </div>
-                            </div>
-
-                            <div className="student-actions">
-                              <button
-                                onClick={() => handleViewDetails(student.id)}
-                              >
-                                View Details
-                              </button>
-
-                              <button
-                                className="secondary-button"
-                                onClick={() => handleEditStudent(student)}
-                              >
-                                Edit
-                              </button>
-
-                              <button
-                                className="danger-button"
-                                onClick={() => handleDeleteStudent(student.id)}
-                                disabled={deletingId === student.id}
-                              >
-                                {deletingId === student.id
-                                  ? "Deleting..."
-                                  : "Delete"}
-                              </button>
                             </div>
                           </>
                         )}

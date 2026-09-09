@@ -10,6 +10,12 @@ ALLOWED_STATUSES = {
     "Completed",
 }
 
+ALLOWED_OUTCOMES = {
+    "Improved",
+    "No Improvement",
+    "Needs Follow-up",
+}
+
 
 def create_intervention(
     db: Session,
@@ -31,6 +37,7 @@ def create_intervention(
         priority=data["priority"],
         description=data["description"],
         status="Pending",
+        due_date=data.get("due_date"),
     )
 
     db.add(intervention)
@@ -62,6 +69,10 @@ def get_interventions(db: Session):
             "priority": intervention.priority,
             "description": intervention.description,
             "status": intervention.status,
+            "due_date": intervention.due_date,
+            "outcome": intervention.outcome,
+            "outcome_notes": intervention.outcome_notes,
+            "outcome_date": intervention.outcome_date,
         }
         for intervention, student in rows
     ]
@@ -85,6 +96,35 @@ def update_intervention_status(
         return None
 
     intervention.status = status
+
+    db.commit()
+    db.refresh(intervention)
+
+    return intervention
+
+
+def update_intervention_outcome(
+    db: Session,
+    intervention_id: int,
+    outcome: str,
+    outcome_notes: str | None,
+    outcome_date,
+):
+    if outcome not in ALLOWED_OUTCOMES:
+        return None
+
+    intervention = (
+        db.query(Intervention)
+        .filter(Intervention.id == intervention_id)
+        .first()
+    )
+
+    if not intervention:
+        return None
+
+    intervention.outcome = outcome
+    intervention.outcome_notes = outcome_notes
+    intervention.outcome_date = outcome_date
 
     db.commit()
     db.refresh(intervention)

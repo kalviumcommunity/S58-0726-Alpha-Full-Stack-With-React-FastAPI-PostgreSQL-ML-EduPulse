@@ -1,19 +1,34 @@
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
+  --text: #6f687c;
+  --text-h: #17121f;
+  --bg: #f8f7fb;
+  --border: #e8e4ee;
+  --code-bg: #f1edf7;
+
+  --accent: #9b4dca;
+  --accent-bright: #b86bea;
+  --accent-bg: rgba(155, 77, 202, 0.1);
+  --accent-border: rgba(155, 77, 202, 0.35);
+
+  --social-bg: rgba(241, 237, 247, 0.7);
   --card-bg: #ffffff;
   --input-bg: #ffffff;
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: system-ui, "Segoe UI", Roboto, sans-serif;
+  --surface-elevated: #ffffff;
+  --surface-muted: #f3f0f7;
+  --success: #3f9b6d;
+  --warning: #c58a3a;
+  --danger: #c85c69;
+
+  --shadow:
+    0 10px 30px rgba(45, 28, 61, 0.06), 0 2px 8px rgba(45, 28, 61, 0.04);
+
+  --shadow-hover:
+    0 16px 40px rgba(45, 28, 61, 0.1), 0 4px 12px rgba(45, 28, 61, 0.06);
+
+  --sans:
+    Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
   --heading: system-ui, "Segoe UI", Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
@@ -34,19 +49,31 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --card-bg: #1f2028;
-    --input-bg: #1f2028;
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+    --text: #aaa2b8;
+    --text-h: #f5f1fa;
+    --bg: #0b0a10;
+    --border: rgba(192, 132, 252, 0.14);
+    --code-bg: #14111b;
+
+    --accent: #b86bea;
+    --accent-bright: #d09af5;
+    --accent-bg: rgba(184, 107, 234, 0.12);
+    --accent-border: rgba(184, 107, 234, 0.38);
+
+    --social-bg: rgba(184, 107, 234, 0.08);
+    --card-bg: #15131d;
+    --input-bg: #111017;
+
+    --surface-elevated: #1c1926;
+    --surface-muted: #181520;
+    --success: #62c995;
+    --warning: #e1aa5e;
+    --danger: #ed7785;
+
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.32), 0 3px 12px rgba(0, 0, 0, 0.22);
+
+    --shadow-hover:
+      0 20px 50px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(184, 107, 234, 0.08);
   }
 
   #social .button-icon {

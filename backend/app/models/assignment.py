@@ -20,6 +20,13 @@ class Assignment(Base):
         index=True
     )
 
+    subject_id = Column(
+        Integer,
+        ForeignKey("subjects.id"),
+        nullable=True,
+        index=True
+    )
+
     title = Column(
         String,
         nullable=False
@@ -51,3 +58,5 @@ class Assignment(Base):
         "Student",
         back_populates="assignments"
     )
+
+    subject_entity = relationship("Subject")

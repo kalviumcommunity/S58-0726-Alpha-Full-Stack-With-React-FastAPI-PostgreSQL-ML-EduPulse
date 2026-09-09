@@ -20,6 +20,13 @@ class Exam(Base):
         index=True
     )
 
+    subject_id = Column(
+        Integer,
+        ForeignKey("subjects.id"),
+        nullable=True,
+        index=True
+    )
+
     subject = Column(
         String,
         nullable=False,
@@ -45,3 +52,5 @@ class Exam(Base):
         "Student",
         back_populates="exams"
     )
+
+    subject_entity = relationship("Subject")

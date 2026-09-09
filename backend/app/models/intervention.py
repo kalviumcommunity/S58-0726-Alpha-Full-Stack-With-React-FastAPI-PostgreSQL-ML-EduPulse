@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, Date
 from sqlalchemy.orm import relationship
 
 from app.database.base import Base
@@ -40,6 +40,26 @@ class Intervention(Base):
         String(30),
         nullable=False,
         default="Pending",
+    )
+
+    due_date = Column(
+        Date,
+        nullable=True,
+    )
+
+    outcome = Column(
+        String(30),
+        nullable=True,
+    )
+
+    outcome_notes = Column(
+        Text,
+        nullable=True,
+    )
+
+    outcome_date = Column(
+        Date,
+        nullable=True,
     )
 
     student = relationship(

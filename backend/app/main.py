@@ -14,7 +14,8 @@ from app.api.v1 import (
     subject_analytics,
     performance_trend,
     recommendations,
-    interventions
+    interventions,
+    subject
 )
 
 
@@ -50,3 +51,4 @@ app.include_router(subject_analytics.router)
 app.include_router(performance_trend.router)
 app.include_router(recommendations.router)
 app.include_router(interventions.router)
+app.include_router(subject.router)

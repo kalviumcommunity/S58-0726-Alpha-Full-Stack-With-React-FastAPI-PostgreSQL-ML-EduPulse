@@ -1,16 +1,19 @@
 from sqlalchemy.orm import Session
-from app.services.academic_validation import validate_student_exists
+from app.services.academic_validation import validate_student_exists, validate_subject_exists
 from app.models.exam import Exam
 
 
 def create_exam(db: Session, exam):
     validate_student_exists(db, exam.student_id)
+    subject = validate_subject_exists(db, exam.subject_id)
+
     new_exam = Exam(
         student_id=exam.student_id,
-        subject=exam.subject,
+        subject_id=exam.subject_id,
+        subject=subject.name,
         exam_type=exam.exam_type,
         exam_date=exam.exam_date,
-        score=exam.score
+        score=exam.score,
     )
 
     db.add(new_exam)

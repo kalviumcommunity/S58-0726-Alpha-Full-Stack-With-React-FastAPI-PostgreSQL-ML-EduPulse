@@ -43,7 +43,9 @@ import {
 import { getRecommendations } from "../services/recommendations";
 import {
   getInterventions,
+  createIntervention,
   updateInterventionStatus,
+  updateInterventionOutcome,
 } from "../services/interventions";
 
 function Dashboard({ onLogout }) {
@@ -92,6 +94,22 @@ function Dashboard({ onLogout }) {
   const [interventionsLoading, setInterventionsLoading] = useState(true);
   const [interventionsError, setInterventionsError] = useState("");
   const [updatingInterventionId, setUpdatingInterventionId] = useState(null);
+  const [updatingInterventionOutcomeId, setUpdatingInterventionOutcomeId] =
+    useState(null);
+  const [interventionOutcome, setInterventionOutcome] = useState({});
+  const [interventionOutcomeNotes, setInterventionOutcomeNotes] = useState({});
+  const [interventionOutcomeDate, setInterventionOutcomeDate] = useState({});
+
+  const [showCreateIntervention, setShowCreateIntervention] = useState(false);
+  const [creatingIntervention, setCreatingIntervention] = useState(false);
+  const [createInterventionMessage, setCreateInterventionMessage] =
+    useState("");
+  const [interventionStudentId, setInterventionStudentId] = useState("");
+  const [interventionFactor, setInterventionFactor] = useState("");
+  const [interventionAction, setInterventionAction] = useState("");
+  const [interventionPriority, setInterventionPriority] = useState("High");
+  const [interventionDescription, setInterventionDescription] = useState("");
+  const [interventionDueDate, setInterventionDueDate] = useState("");
 
   // ==============================
   // STUDENT ANALYTICS
@@ -136,6 +154,70 @@ function Dashboard({ onLogout }) {
   }, []);
 
   // ==============================
+  // USE RECOMMENDATION FOR INTERVENTION
+  // ==============================
+
+  const handleUseRecommendation = (student, recommendation) => {
+    setInterventionStudentId(String(student.student_id));
+    setInterventionFactor(recommendation.factor);
+    setInterventionAction(recommendation.action);
+    setInterventionPriority(recommendation.priority);
+    setInterventionDescription(recommendation.description);
+    setInterventionDueDate("");
+
+    setCreateInterventionMessage("");
+    setShowCreateIntervention(true);
+    setActiveSection("interventions");
+  };
+
+  // ==============================
+  // CREATE INTERVENTION
+  // ==============================
+
+  const handleCreateIntervention = async (event) => {
+    event.preventDefault();
+
+    if (!interventionStudentId) {
+      setCreateInterventionMessage("Please select a student.");
+      return;
+    }
+
+    setCreatingIntervention(true);
+    setCreateInterventionMessage("");
+
+    try {
+      const newIntervention = await createIntervention({
+        student_id: Number(interventionStudentId),
+        factor: interventionFactor,
+        action: interventionAction,
+        priority: interventionPriority,
+        description: interventionDescription,
+        due_date: interventionDueDate || null,
+      });
+
+      setInterventions((current) => [newIntervention, ...current]);
+
+      setInterventionStudentId("");
+      setInterventionFactor("");
+      setInterventionAction("");
+      setInterventionPriority("High");
+      setInterventionDescription("");
+      setInterventionDueDate("");
+
+      setCreateInterventionMessage("Intervention created successfully.");
+      setShowCreateIntervention(false);
+    } catch (error) {
+      console.error("Create intervention error:", error);
+
+      setCreateInterventionMessage(
+        error.response?.data?.detail || "Unable to create intervention",
+      );
+    } finally {
+      setCreatingIntervention(false);
+    }
+  };
+
+  // ==============================
   // UPDATE INTERVENTION STATUS
   // ==============================
 
@@ -165,6 +247,48 @@ function Dashboard({ onLogout }) {
       );
     } finally {
       setUpdatingInterventionId(null);
+    }
+  };
+
+  // ==============================
+  // UPDATE INTERVENTION OUTCOME
+  // ==============================
+
+  const handleInterventionOutcomeChange = async (interventionId) => {
+    const outcome = interventionOutcome[interventionId];
+
+    if (!outcome) {
+      setInterventionsError("Please select an outcome.");
+      return;
+    }
+
+    setUpdatingInterventionOutcomeId(interventionId);
+
+    try {
+      const updatedIntervention = await updateInterventionOutcome(
+        interventionId,
+        outcome,
+        interventionOutcomeNotes[interventionId] || null,
+        interventionOutcomeDate[interventionId] || null,
+      );
+
+      setInterventions((current) =>
+        current.map((intervention) =>
+          intervention.id === updatedIntervention.id
+            ? updatedIntervention
+            : intervention,
+        ),
+      );
+
+      setInterventionsError("");
+    } catch (error) {
+      console.error("Intervention outcome update error:", error);
+
+      setInterventionsError(
+        error.response?.data?.detail || "Unable to update intervention outcome",
+      );
+    } finally {
+      setUpdatingInterventionOutcomeId(null);
     }
   };
 
@@ -2084,6 +2208,19 @@ function Dashboard({ onLogout }) {
                               </p>
 
                               <p>{recommendation.description}</p>
+
+                              <button
+                                type="button"
+                                className="recommendation-action-button"
+                                onClick={() =>
+                                  handleUseRecommendation(
+                                    student,
+                                    recommendation,
+                                  )
+                                }
+                              >
+                                Create Intervention
+                              </button>
                             </div>
                           ))}
                         </div>
@@ -2103,7 +2240,147 @@ function Dashboard({ onLogout }) {
                     Track faculty actions taken to support at-risk students.
                   </p>
                 </div>
+
+                <button
+                  type="button"
+                  className="add-student-button"
+                  onClick={() => {
+                    setShowCreateIntervention((previous) => !previous);
+                    setCreateInterventionMessage("");
+                  }}
+                >
+                  {showCreateIntervention
+                    ? "Close Form"
+                    : "+ Create Intervention"}
+                </button>
               </div>
+
+              {showCreateIntervention && (
+                <section className="student-form-section">
+                  <div className="dashboard-section-header">
+                    <h2>Create Intervention</h2>
+                    <p>Create a targeted action plan for an at-risk student.</p>
+                  </div>
+
+                  <form
+                    className="student-form"
+                    onSubmit={handleCreateIntervention}
+                  >
+                    <div className="form-grid">
+                      <div className="form-field">
+                        <label htmlFor="intervention-student">Student</label>
+
+                        <select
+                          id="intervention-student"
+                          value={interventionStudentId}
+                          onChange={(event) =>
+                            setInterventionStudentId(event.target.value)
+                          }
+                          required
+                        >
+                          <option value="">Select a student</option>
+
+                          {students.map((student) => (
+                            <option key={student.id} value={student.id}>
+                              {student.name} ({student.student_id})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="form-field">
+                        <label htmlFor="intervention-factor">Risk Factor</label>
+
+                        <input
+                          id="intervention-factor"
+                          type="text"
+                          placeholder="Example: Low attendance"
+                          value={interventionFactor}
+                          onChange={(event) =>
+                            setInterventionFactor(event.target.value)
+                          }
+                          required
+                        />
+                      </div>
+
+                      <div className="form-field">
+                        <label htmlFor="intervention-action">Action</label>
+
+                        <input
+                          id="intervention-action"
+                          type="text"
+                          placeholder="Example: Faculty counseling session"
+                          value={interventionAction}
+                          onChange={(event) =>
+                            setInterventionAction(event.target.value)
+                          }
+                          required
+                        />
+                      </div>
+
+                      <div className="form-field">
+                        <label htmlFor="intervention-priority">Priority</label>
+
+                        <select
+                          id="intervention-priority"
+                          value={interventionPriority}
+                          onChange={(event) =>
+                            setInterventionPriority(event.target.value)
+                          }
+                        >
+                          <option value="High">High</option>
+                          <option value="Medium">Medium</option>
+                          <option value="Low">Low</option>
+                        </select>
+                      </div>
+
+                      <div className="form-field">
+                        <label htmlFor="intervention-due-date">Due Date</label>
+
+                        <input
+                          id="intervention-due-date"
+                          type="date"
+                          value={interventionDueDate}
+                          onChange={(event) =>
+                            setInterventionDueDate(event.target.value)
+                          }
+                        />
+                      </div>
+
+                      <div className="form-field">
+                        <label htmlFor="intervention-description">
+                          Description
+                        </label>
+
+                        <textarea
+                          id="intervention-description"
+                          placeholder="Describe the intervention and expected action."
+                          value={interventionDescription}
+                          onChange={(event) =>
+                            setInterventionDescription(event.target.value)
+                          }
+                          required
+                          rows="4"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="student-form-actions">
+                      <button type="submit" disabled={creatingIntervention}>
+                        {creatingIntervention
+                          ? "Creating..."
+                          : "Create Intervention"}
+                      </button>
+                    </div>
+
+                    {createInterventionMessage && (
+                      <p className="status-message">
+                        {createInterventionMessage}
+                      </p>
+                    )}
+                  </form>
+                </section>
+              )}
 
               {interventionsLoading && (
                 <p className="status-message">Loading interventions...</p>
@@ -2153,6 +2430,19 @@ function Dashboard({ onLogout }) {
                             <strong>Description:</strong>{" "}
                             {intervention.description}
                           </p>
+
+                          <p>
+                            <strong>Due Date:</strong>{" "}
+                            {intervention.due_date
+                              ? new Date(
+                                  `${intervention.due_date}T00:00:00`,
+                                ).toLocaleDateString("en-IN", {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                })
+                              : "Not set"}
+                          </p>
                         </div>
 
                         <div className="intervention-footer">
@@ -2186,6 +2476,147 @@ function Dashboard({ onLogout }) {
                             <option value="Completed">Completed</option>
                           </select>
                         </div>
+
+                        {intervention.status === "Completed" && (
+                          <div className="intervention-outcome-section">
+                            <div className="intervention-outcome-header">
+                              <div>
+                                <h4>Intervention Outcome</h4>
+                                <p>
+                                  Record whether the intervention improved the
+                                  student's academic situation.
+                                </p>
+                              </div>
+
+                              {intervention.outcome && (
+                                <span className="intervention-outcome-badge">
+                                  {intervention.outcome}
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="intervention-outcome-form">
+                              <div className="form-field">
+                                <label htmlFor={`outcome-${intervention.id}`}>
+                                  Outcome
+                                </label>
+
+                                <select
+                                  id={`outcome-${intervention.id}`}
+                                  value={
+                                    interventionOutcome[intervention.id] ??
+                                    intervention.outcome ??
+                                    ""
+                                  }
+                                  onChange={(event) =>
+                                    setInterventionOutcome((current) => ({
+                                      ...current,
+                                      [intervention.id]: event.target.value,
+                                    }))
+                                  }
+                                >
+                                  <option value="">Select outcome</option>
+                                  <option value="Improved">Improved</option>
+                                  <option value="No Improvement">
+                                    No Improvement
+                                  </option>
+                                  <option value="Needs Follow-up">
+                                    Needs Follow-up
+                                  </option>
+                                </select>
+                              </div>
+
+                              <div className="form-field">
+                                <label
+                                  htmlFor={`outcome-date-${intervention.id}`}
+                                >
+                                  Outcome Date
+                                </label>
+
+                                <input
+                                  id={`outcome-date-${intervention.id}`}
+                                  type="date"
+                                  value={
+                                    interventionOutcomeDate[intervention.id] ??
+                                    intervention.outcome_date ??
+                                    ""
+                                  }
+                                  onChange={(event) =>
+                                    setInterventionOutcomeDate((current) => ({
+                                      ...current,
+                                      [intervention.id]: event.target.value,
+                                    }))
+                                  }
+                                />
+                              </div>
+
+                              <div className="form-field">
+                                <label
+                                  htmlFor={`outcome-notes-${intervention.id}`}
+                                >
+                                  Outcome Notes
+                                </label>
+
+                                <textarea
+                                  id={`outcome-notes-${intervention.id}`}
+                                  placeholder="Describe the student's response to the intervention."
+                                  value={
+                                    interventionOutcomeNotes[intervention.id] ??
+                                    intervention.outcome_notes ??
+                                    ""
+                                  }
+                                  onChange={(event) =>
+                                    setInterventionOutcomeNotes((current) => ({
+                                      ...current,
+                                      [intervention.id]: event.target.value,
+                                    }))
+                                  }
+                                  rows="3"
+                                />
+                              </div>
+
+                              <button
+                                type="button"
+                                className="recommendation-action-button"
+                                disabled={
+                                  updatingInterventionOutcomeId ===
+                                  intervention.id
+                                }
+                                onClick={() =>
+                                  handleInterventionOutcomeChange(
+                                    intervention.id,
+                                  )
+                                }
+                              >
+                                {updatingInterventionOutcomeId ===
+                                intervention.id
+                                  ? "Saving..."
+                                  : intervention.outcome
+                                    ? "Update Outcome"
+                                    : "Record Outcome"}
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {intervention.outcome && (
+                          <div className="intervention-recorded-outcome">
+                            <strong>Recorded Outcome:</strong>{" "}
+                            {intervention.outcome}
+                            {intervention.outcome_date && (
+                              <>
+                                {" · "}
+                                {new Date(
+                                  `${intervention.outcome_date}T00:00:00`,
+                                ).toLocaleDateString("en-IN", {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                })}
+                              </>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

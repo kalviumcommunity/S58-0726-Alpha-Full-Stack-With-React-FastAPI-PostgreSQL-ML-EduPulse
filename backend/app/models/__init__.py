@@ -5,3 +5,5 @@ from app.models import attendance
 from app.models import assignment
 from app.models import exam
 from app.models import intervention
+from app.models import subject
+

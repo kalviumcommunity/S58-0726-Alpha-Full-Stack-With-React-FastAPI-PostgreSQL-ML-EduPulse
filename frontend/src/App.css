@@ -1429,6 +1429,89 @@
   cursor: not-allowed;
 }
 
+/* INTERVENTION OUTCOMES */
+
+.intervention-outcome-section {
+  margin-top: 20px;
+  padding: 18px;
+  border: 1px solid #e7e8ef;
+  border-radius: 12px;
+  background: #f8f8fc;
+}
+
+.intervention-outcome-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.intervention-outcome-header h4 {
+  margin: 0 0 5px;
+  color: #202236;
+  font-size: 15px;
+}
+
+.intervention-outcome-header p {
+  margin: 0;
+  color: #85899b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.intervention-outcome-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #e8f5ed;
+  color: #15803d;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.intervention-outcome-form {
+  display: grid;
+  grid-template-columns:
+    minmax(160px, 0.8fr) minmax(160px, 0.8fr) minmax(220px, 1.4fr)
+    auto;
+  align-items: end;
+  gap: 12px;
+}
+
+.intervention-outcome-form .form-field {
+  margin: 0;
+}
+
+.intervention-outcome-form select,
+.intervention-outcome-form input,
+.intervention-outcome-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.intervention-outcome-form textarea {
+  min-height: 42px;
+  resize: vertical;
+}
+
+.intervention-outcome-form button {
+  min-height: 42px;
+  white-space: nowrap;
+}
+
+.intervention-recorded-outcome {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #f3f4f8;
+  color: #5f6375;
+  font-size: 13px;
+}
+
 /* ============================================================
    EDUPULSE FACULTY DASHBOARD — PRODUCT UX
    ============================================================ */
@@ -2383,5 +2466,495 @@
 
   .trend-score {
     margin-top: 5px;
+  }
+}
+
+/* INTERVENTION OUTCOME RESPONSIVE LAYOUT */
+
+.intervention-outcome-section {
+  background: var(--card-bg);
+  border-color: var(--border);
+}
+
+.intervention-outcome-header h4 {
+  color: var(--text-h);
+}
+
+.intervention-outcome-header p {
+  color: var(--text);
+}
+
+.intervention-outcome-badge {
+  background: var(--social-bg);
+  color: var(--accent);
+}
+
+.intervention-outcome-form {
+  grid-template-columns: minmax(160px, 0.8fr) minmax(160px, 0.8fr) minmax(
+      240px,
+      1.5fr
+    );
+}
+
+.intervention-outcome-form .form-field:last-of-type {
+  grid-column: span 1;
+}
+
+.intervention-outcome-form button {
+  align-self: end;
+}
+
+.intervention-recorded-outcome {
+  background: var(--social-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+@media (max-width: 900px) {
+  .intervention-outcome-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .intervention-outcome-form .form-field:last-of-type {
+    grid-column: 1 / -1;
+  }
+
+  .intervention-outcome-form button {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 600px) {
+  .intervention-outcome-header {
+    flex-direction: column;
+  }
+
+  .intervention-outcome-form {
+    grid-template-columns: 1fr;
+  }
+
+  .intervention-outcome-form .form-field:last-of-type {
+    grid-column: auto;
+  }
+
+  .intervention-outcome-form button {
+    width: 100%;
+  }
+}
+
+/* ===== EDUPULSE PREMIUM SHELL ===== */
+/* ===== EDUPULSE PREMIUM SHELL ===== */
+
+body {
+  background:
+    radial-gradient(
+      circle at 10% 0%,
+      rgba(184, 107, 234, 0.08),
+      transparent 28rem
+    ),
+    radial-gradient(
+      circle at 90% 10%,
+      rgba(155, 77, 202, 0.06),
+      transparent 24rem
+    ),
+    var(--bg);
+}
+
+#root {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  border-inline: 0;
+  background: transparent;
+}
+
+.dashboard-layout {
+  min-height: 100svh;
+  background: transparent;
+}
+
+.sidebar {
+  background: linear-gradient(
+    180deg,
+    rgba(21, 19, 29, 0.98) 0%,
+    rgba(13, 12, 18, 0.98) 100%
+  );
+  border-right: 1px solid var(--border);
+  box-shadow: 12px 0 40px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(18px);
+}
+
+.sidebar-logo,
+.sidebar-brand {
+  color: var(--text-h);
+}
+
+.sidebar-item {
+  position: relative;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: var(--text);
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.sidebar-item:hover {
+  background: rgba(184, 107, 234, 0.07);
+  border-color: rgba(184, 107, 234, 0.12);
+  color: var(--text-h);
+  transform: translateX(2px);
+}
+
+.sidebar-item.active {
+  background: linear-gradient(
+    135deg,
+    rgba(184, 107, 234, 0.18),
+    rgba(155, 77, 202, 0.08)
+  );
+  border-color: rgba(184, 107, 234, 0.22);
+  color: var(--text-h);
+  box-shadow:
+    inset 3px 0 0 var(--accent),
+    0 8px 24px rgba(184, 107, 234, 0.07);
+}
+
+.sidebar-item.active span {
+  color: var(--accent-bright);
+}
+
+.sidebar-footer {
+  border-top: 1px solid var(--border);
+}
+
+.sidebar-user {
+  color: var(--text-h);
+}
+
+.sidebar-user span {
+  color: var(--text);
+}
+
+.user-avatar {
+  background: linear-gradient(135deg, var(--accent), var(--accent-bright));
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(184, 107, 234, 0.22);
+}
+
+.sidebar-logout {
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease;
+}
+
+.sidebar-logout:hover {
+  background: rgba(237, 119, 133, 0.08);
+  border-color: rgba(237, 119, 133, 0.2);
+  color: var(--danger);
+}
+
+.main-content {
+  background: transparent;
+}
+
+.topbar {
+  background: rgba(11, 10, 16, 0.76);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.topbar-search {
+  background: rgba(21, 19, 29, 0.72);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.topbar-search:focus-within {
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+.topbar-search input {
+  color: var(--text-h);
+}
+
+.topbar-search input::placeholder {
+  color: var(--text);
+}
+
+.notification-button {
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.notification-button:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+
+.topbar-profile {
+  color: var(--text-h);
+}
+
+.topbar-profile span {
+  color: var(--text);
+}
+
+.dashboard {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 36px 40px 56px;
+}
+
+.dashboard-header h1 {
+  color: var(--text-h);
+  letter-spacing: -0.035em;
+}
+
+.dashboard-header p {
+  color: var(--text);
+}
+
+.dashboard > hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 24px 0 30px;
+}
+
+@media (max-width: 1100px) {
+  .dashboard {
+    padding: 28px 24px 48px;
+  }
+}
+
+@media (max-width: 760px) {
+  .dashboard {
+    padding: 24px 16px 40px;
+  }
+
+  .topbar {
+    padding-inline: 16px;
+  }
+
+  .topbar-search {
+    max-width: none;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .sidebar {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.98) 0%,
+      rgba(248, 247, 251, 0.98) 100%
+    );
+    box-shadow: 12px 0 40px rgba(45, 28, 61, 0.06);
+  }
+
+  .topbar {
+    background: rgba(248, 247, 251, 0.82);
+  }
+
+  .topbar-search {
+    background: rgba(255, 255, 255, 0.82);
+  }
+}
+
+/* ===== EDUPULSE DASHBOARD SURFACES ===== */
+/* ===== EDUPULSE DASHBOARD SURFACES ===== */
+
+.dashboard-card,
+.metric-card,
+.engagement-card,
+.student-card,
+.intervention-card,
+.student-form-section {
+  background: linear-gradient(
+    145deg,
+    rgba(28, 25, 38, 0.96),
+    rgba(21, 19, 29, 0.96)
+  );
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.metric-card {
+  position: relative;
+  min-height: 142px;
+  padding: 22px;
+  border-radius: 16px;
+  overflow: hidden;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.metric-card::after {
+  content: "";
+  position: absolute;
+  width: 110px;
+  height: 110px;
+  right: -48px;
+  bottom: -58px;
+  border-radius: 50%;
+  background: rgba(184, 107, 234, 0.08);
+  pointer-events: none;
+}
+
+.metric-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(184, 107, 234, 0.28);
+  box-shadow: var(--shadow-hover);
+}
+
+.metric-icon {
+  border: 1px solid rgba(184, 107, 234, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.metric-icon-purple {
+  background: rgba(184, 107, 234, 0.13);
+  color: var(--accent-bright);
+}
+
+.metric-icon-red {
+  background: rgba(237, 119, 133, 0.11);
+  color: var(--danger);
+}
+
+.metric-icon-blue {
+  background: rgba(96, 165, 250, 0.11);
+  color: #78aef7;
+}
+
+.metric-icon-green {
+  background: rgba(98, 201, 149, 0.11);
+  color: var(--success);
+}
+
+.metric-content {
+  gap: 7px;
+}
+
+.metric-title {
+  color: var(--text);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.metric-value {
+  color: var(--text-h);
+  font-size: 2rem;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+.metric-subtitle {
+  color: var(--text);
+  font-size: 0.75rem;
+}
+
+.metric-subtitle svg {
+  color: var(--accent-bright);
+}
+
+.dashboard-card {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.dashboard-card-header h3,
+.engagement-header h3 {
+  color: var(--text-h);
+}
+
+.dashboard-card-header p,
+.engagement-header p {
+  color: var(--text);
+}
+
+.risk-distribution-content,
+.attendance-trend-card,
+.risk-distribution-card {
+  color: var(--text);
+}
+
+.risk-chart-center strong {
+  color: var(--text-h);
+  font-size: 1.6rem;
+}
+
+.risk-chart-center span {
+  color: var(--text);
+}
+
+.risk-legend-item {
+  color: var(--text);
+}
+
+.risk-legend-item strong {
+  color: var(--text-h);
+}
+
+.attendance-trend-value strong {
+  color: var(--text-h);
+}
+
+.attendance-trend-value span {
+  color: var(--text);
+}
+
+.engagement-card {
+  border-radius: 16px;
+}
+
+.engagement-metric {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--border);
+}
+
+.engagement-metric-top {
+  color: var(--text);
+}
+
+.engagement-metric strong {
+  color: var(--text-h);
+}
+
+@media (prefers-color-scheme: light) {
+  .dashboard-card,
+  .metric-card,
+  .engagement-card,
+  .student-card,
+  .intervention-card,
+  .student-form-section {
+    background: linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.98),
+      rgba(248, 247, 251, 0.98)
+    );
+  }
+
+  .metric-card::after {
+    background: rgba(155, 77, 202, 0.06);
+  }
+
+  .engagement-metric {
+    background: rgba(155, 77, 202, 0.025);
   }
 }
